@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ pagename }} | Образование в кольце</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style/base.css') }}">
+    </head>
+    <body>
+        <header>
+            <nav class="navbar bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" width="2.5%" class="d-inline-block align-text-top">
+                    <p style="display: inline; vertical-align: middle;">Образование в кольце</p>
+                    </a>
+                </div>
+            </nav>
+        </header>
+        {% block content %}{% endblock %}
+        <footer>
+            <p>Copyright © 2026. Конжин Н.А., Нефедов А.С.</p><br>
+            <a href="https://sc393.kirov.spb.ru/" style="margin-right: 50px;">Лицей №393. Санкт-Петербург, ул. Автовская, д.5</a>
+            <a href="/about">О нас</a>
+        </footer>
+    </body>   
+</html>
