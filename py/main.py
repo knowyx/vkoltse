@@ -15,6 +15,9 @@ def index():
 def about():
     return render_template("about.html", pagename='О проекте')
 
+@app.errorhandler(404)
+def err404(junk):
+    return "404. Not found"
 
 if __name__ == "__main__":
     db_session.global_init("../db/data.db")
