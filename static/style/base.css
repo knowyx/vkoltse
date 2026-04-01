@@ -1,0 +1,9 @@
+.divcenter{
+    justify-content: center;
+    align-items: center;
+    text-align: center
+}
+.critical{
+    color: red;
+    font-size: 3.5em;
+}

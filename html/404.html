@@ -1,0 +1,8 @@
+{% extends "base.html"%}
+
+{% block content %}
+    <div class="divcenter">
+        <h1 class="critical">404</h1>
+        <h2>Страницы по адресу {{ addr }} не существует или она была удалена</h2>
+        <a href="/"><button type="button" class="btn btn-warning">Вернуться на главную</button></a>
+{% endblock %}
