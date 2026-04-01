@@ -56,13 +56,13 @@ class NewsResource(Resource):
 
 class NewsListResource(Resource):
     def get(self):
-        session = db_session.create_session()
+        session = create_session()
         news = session.query(News).all()
         return jsonify({'news': [item.to_dict(only=("id", "title", "content", "date", "user")) for item in news]})
 
     def post(self):
         args = parser.parse_args()
-        session = db_session.create_session()
+        session = create_session()
         news = News(
             title=args["title"],
             content=args["content"],
