@@ -1,5 +1,41 @@
 {% extends "base.html"%}
 
 {% block content %}
-    <h1>Dear {{ usr }}, we are testing header and footer.</h1>
+    <div class="divcenter"><h1 class="slogan">Образование в кольце</h1></div>
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+            <img src="{{ url_for('static', filename='img/slide1.png') }}" class="d-block w-100" alt="...">
+            </div>
+            <div class="carousel-item">
+            <img src="{{ url_for('static', filename='img/slide2.png') }}" class="d-block w-100" alt="...">
+            </div>
+            <div class="carousel-item">
+            <img src="{{ url_for('static', filename='img/slide3.png') }}" class="d-block w-100" alt="...">
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <span style="font-weight: bold;">Образование в кольце</span><span> — это проект, созданный учениками учениками 10 класса, чтобы сохранить память о подвиге, совершенном нашими предками. Учителя и ученики школ блокадного города каждый день, не смотря на голод и мороз, отправлялись в школы и трудились под опасностью воздушной тревоги.</span><br>
+    <span style="display: flex; align-items: center;"><img src="{{ url_for('static', filename='img/393logo.webp') }}" alt="Логотип лицея №393" width="30%" height="30%" style="min-width: 140px; min-height: 140px; vertical-align: middle;" alli>
+        <div style="margin-left: 5%;">
+            <p style="margin-bottom: 1%;">Мы — ученики лицея №393 — хотим, чтобы об их подвигах знали не только наши ученики, поэтому наше простаранство открыто для всех, достаточно лишь записаться в экскурсионную группу.</p>
+            Проект реализован на средства из городского бюджета и от наших спонсоров<br>
+            <a href="/about"><button type="button" class="btn btn-primary" style="margin: 1%; margin-left: 0px;">Узнать больше о проекте</button></a>
+            <a href="/visit"><button type="button" class="btn btn-primary" style="margin: 1%; margin-left: 0px;">Записаться на экскурсию</button></a>
+        </div>
+    </span>
+
 {% endblock %}
