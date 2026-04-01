@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import orm
 from data.db_session import SqlAlchemyBase
 
-class News(SqlAlchemyBase, UserMixin, SerializerMixin):
+class News(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'news'
     user_id = Column(Integer, ForeignKey("users.id"))
     id = Column(Integer, primary_key=True, autoincrement=True)

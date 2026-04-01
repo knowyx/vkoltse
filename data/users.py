@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy_serializer import SerializerMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from data.db_session import SqlAlchemyBase
@@ -13,7 +13,21 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
     email = Column(String, nullable=False, unique=True)
     login = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
+
     news = orm.relationship("News", back_populates="user")
+
+    stories = orm.relationship(
+        "Stories",
+        back_populates="author",
+        foreign_keys='Stories.author_id'
+    )
+    review_stories = orm.relationship(
+        "Stories",
+        back_populates="review_authors",
+        foreign_keys='Stories.review_authors_id'
+    )
+
+    is_confirmed = Column(Boolean, nullable=False, default=False)
     serialize_rules = ('-password_hash',)
 
     def set_password(self, password):
