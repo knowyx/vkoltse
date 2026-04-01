@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
+from login_form import LoginForm
+from forgot_password_form import ForgotForm
 # from data import db_session
 
 WEBDIRPATH = 'html/'
 
 app = Flask(__name__, template_folder='../html', static_folder="../static")
+app.config['SECRET_KEY'] = 'vkoltse_dev'
 
 
 @app.route("/")
@@ -18,6 +21,20 @@ def about():
 @app.errorhandler(404)
 def err404(junk):
     return render_template("404.html", pagename='404', addr=request.url)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        return redirect('/index')
+    return render_template('login.html', pagename='Авторизация', form=form)
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotForm()
+    if form.validate_on_submit():
+        return redirect('/login')
+    return render_template('forgot-password.html', pagename='Сброс пароля', form=form)
 
 if __name__ == "__main__":
     # db_session.global_init("../db/data.db")
