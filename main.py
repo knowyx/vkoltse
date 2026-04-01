@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from data import db_session
+from api.__init__api import init_api
 
 WEBDIRPATH = 'html/'
 
@@ -20,5 +21,10 @@ def err404(junk):
     return render_template("404.html", pagename='404', addr=request.url)
 
 if __name__ == "__main__":
+def main():
     db_session.global_init("db/data.db")
+    init_api(app)
     app.run(port=8080, host="127.0.0.1")
+
+if __name__ == "__main__":
+    main()
