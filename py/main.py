@@ -9,7 +9,7 @@ app = Flask(__name__, template_folder='../html', static_folder="../static")
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", pagename="Главная", usr="knowyx_")
+    return render_template("index.html", pagename="Главная", usr=request.args.get('user', 'user'))
 
 @app.route("/about")
 def about():
