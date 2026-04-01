@@ -28,6 +28,7 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
     )
 
     is_confirmed = Column(Boolean, nullable=False, default=False)
+    sessions = orm.relationship("sessions", back_populates="user")
     serialize_rules = ('-password_hash',)
 
     def set_password(self, password):
