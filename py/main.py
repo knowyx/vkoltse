@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from data import db_session
 
 WEBDIRPATH = 'html/'
@@ -17,7 +17,7 @@ def about():
 
 @app.errorhandler(404)
 def err404(junk):
-    return "404. Not found"
+    return render_template("404.html", pagename='404', addr=request.url)
 
 if __name__ == "__main__":
     db_session.global_init("../db/data.db")
