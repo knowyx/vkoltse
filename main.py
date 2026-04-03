@@ -2,13 +2,12 @@ from flask import Flask, render_template, request
 from sqlalchemy.testing.pickleable import User
 from werkzeug.utils import redirect
 
-from py.login_form import LoginForm
-from py.forgot_password_form import ForgotForm
-from py.register_form import RegisterForm
+from py.auth_forms import LoginForm, RegisterForm, ForgotForm
+from py.user_bd_handler import register_user
+from data.users import Users
 from data import db_session
 from api.__init__api import init_api
 
-WEBDIRPATH = 'html/'
 
 app = Flask(__name__, template_folder='html', static_folder="static")
 app.config['SECRET_KEY'] = 'vkoltse_dev'
@@ -44,7 +43,8 @@ def forgot_password():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        return redirect('/register')
+        register_user(form.username.data, form.email.data, form.password.data, db_session, Users)
+        return redirect('/index')
     return render_template('register.html', pagename='Регистрация', form=form)
 
 def main():

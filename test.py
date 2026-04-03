@@ -1,2 +1,3 @@
-from requests import get, post, delete, put
+from data.users import Users
 
+user = Users()
