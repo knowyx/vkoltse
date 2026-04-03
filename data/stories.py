@@ -6,6 +6,7 @@ from data.db_session import SqlAlchemyBase
 class Stories(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'stories'
     id = Column(Integer, primary_key=True)
+    title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     date = Column(DateTime, nullable=False)
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
