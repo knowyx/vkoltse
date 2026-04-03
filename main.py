@@ -48,7 +48,7 @@ def register():
     return render_template('register.html', pagename='Регистрация', form=form)
 
 if __name__ == "__main__":
-    # db_session.global_init("../db/data.db")
+    db_session.global_init("../db/data.db")
 def main():
     db_session.global_init("db/data.db")
     init_api(app)
