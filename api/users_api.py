@@ -37,6 +37,8 @@ class UsersResource(Resource):
         user.permissions = args["permissions"]
         user.email = args["email"]
         user.login = args["login"]
+        if args.get("password"):
+            user.set_password(args["password"])
 
         session.commit()
         return jsonify({"success": "Ok"})

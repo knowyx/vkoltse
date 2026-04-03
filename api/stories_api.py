@@ -64,14 +64,11 @@ class StoriesListResource(Resource):
     def get(self):
         session = create_session()
         stories = session.query(Stories).all()
-        return jsonify({"stories": stories})
+        return jsonify({"stories": [s.to_dict() for s in stories]})
 
     def post(self):
         args = parser.parse_args()
         session = create_session()
-
-        if session.query(Stories).filter_by(author_id=args["author_id"]).first():
-            return jsonify({"error": "Story already exist"}), 400
 
         story = Stories(
             content=args["content"],
@@ -81,5 +78,6 @@ class StoriesListResource(Resource):
             date=args["date"],
             checked=args["checked"]
         )
-
+        session.add(story)
+        session.commit()
         return jsonify({"id": story.id}), 201
