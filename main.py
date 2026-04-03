@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect
-from login_form import LoginForm
-from forgot_password_form import ForgotForm
+from py.login_form import LoginForm
+from py.forgot_password_form import ForgotForm
+from py.register_form import RegisterForm
 # from data import db_session
 
 WEBDIRPATH = 'html/'
 
-app = Flask(__name__, template_folder='../html', static_folder="../static")
+app = Flask(__name__, template_folder='html', static_folder="static")
 app.config['SECRET_KEY'] = 'vkoltse_dev'
 
 
@@ -35,6 +36,13 @@ def forgot_password():
     if form.validate_on_submit():
         return redirect('/login')
     return render_template('forgot-password.html', pagename='Сброс пароля', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        return redirect('/register')
+    return render_template('register.html', pagename='Регистрация', form=form)
 
 if __name__ == "__main__":
     # db_session.global_init("../db/data.db")
