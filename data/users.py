@@ -19,16 +19,16 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
     stories = orm.relationship(
         "Stories",
         back_populates="author",
-        foreign_keys='Stories.author_id'
+        foreign_keys="[Stories.author_id]"
     )
     review_stories = orm.relationship(
         "Stories",
         back_populates="review_authors",
-        foreign_keys='Stories.review_authors_id'
+        foreign_keys="[Stories.review_authors_id]"
     )
 
     is_confirmed = Column(Boolean, nullable=False, default=False)
-    sessions = orm.relationship("sessions", back_populates="user")
+    sessions = orm.relationship("Sessions", back_populates="user")
     serialize_rules = ('-password_hash',)
 
     def set_password(self, password):
