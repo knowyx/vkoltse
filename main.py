@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 from sqlalchemy.testing.pickleable import User
+from werkzeug.utils import redirect
+
 from py.login_form import LoginForm
 from py.forgot_password_form import ForgotForm
 from py.register_form import RegisterForm
