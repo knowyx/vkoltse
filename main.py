@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from sqlalchemy.testing.pickleable import User
 from werkzeug.utils import redirect
-
+from stories_handlers import story_blueprint
 from py.auth_forms import LoginForm, RegisterForm, ForgotForm
 from py.user_bd_handler import register_user
 from data.users import Users
@@ -55,6 +55,7 @@ def register():
 def main():
     db_session.global_init("db/data.db")
     init_api(app)
+    app.register_blueprint(story_blueprint)
     app.run(port=8080, host="127.0.0.1")
 
 if __name__ == "__main__":
