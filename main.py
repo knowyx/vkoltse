@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request
-from data import db_session
-from api.__init__api import init_api
+from flask import Flask, render_template, request, redirect
+from py.login_form import LoginForm
+from py.forgot_password_form import ForgotForm
+from py.register_form import RegisterForm
+# from data import db_session
 
 WEBDIRPATH = 'html/'
 
-app = Flask(__name__, template_folder='../html', static_folder="../static")
+app = Flask(__name__, template_folder='html', static_folder="static")
+app.config['SECRET_KEY'] = 'vkoltse_dev'
 
 
 @app.route("/")
@@ -20,11 +23,27 @@ def about():
 def err404(junk):
     return render_template("404.html", pagename='404', addr=request.url)
 
-if __name__ == "__main__":
-def main():
-    db_session.global_init("db/data.db")
-    init_api(app)
-    app.run(port=8080, host="127.0.0.1")
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        return redirect('/index')
+    return render_template('login.html', pagename='Авторизация', form=form)
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotForm()
+    if form.validate_on_submit():
+        return redirect('/login')
+    return render_template('forgot-password.html', pagename='Сброс пароля', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        return redirect('/register')
+    return render_template('register.html', pagename='Регистрация', form=form)
 
 if __name__ == "__main__":
-    main()
+    # db_session.global_init("../db/data.db")
+    app.run(port=8080, host="127.0.0.1")
