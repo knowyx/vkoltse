@@ -23,6 +23,11 @@
     {% endfor %}
     </p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if err != None %}
+        <div class="alert alert-danger" role="alert">
+            Неверный адрес электронной почты или пароль.
+        </div>
+    {% endif %}
 </form>
 <div>Нет аккаунта?<a href="/auth/register" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Зарегестрироваться</button></a></div>
 <div style="margin-top: 1%;">Забыли пароль?<a href="/auth/forgot-password" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Сбросить пароль</button></a></div>

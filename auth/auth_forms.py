@@ -38,7 +38,7 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = EmailField('Электронная почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
-    submit = SubmitField('Войти')
+    submit = SubmitField('Войти')        
 
 
 class ForgotForm(FlaskForm):

@@ -1,53 +1,102 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import request
-from data.sessions import Sessions
+from secrets import token_urlsafe
 
 
-def register_user(login, email, password, session, User):
-    user = User()
-    user.login = login
-    user.email = email
-    user.set_password(password)
-    user.permissions = '0'
-    session = session.create_session()
-    session.add(user)
-    session.commit()
+def register_user(login, email, password, db_session, User):
+    with db_session.create_session() as db_session:
+        user = User()
+        user.login = login
+        user.email = email
+        user.set_password(password)
+        user.permissions = '0'
+        db_session.add(user)
+        db_session.commit()
 
 
-def email_exist(email, session, User):
-    session = session.create_session()
-    users = session.query(User).filter(User.email == email)
+def email_exist(email, db_session, User):
+    with db_session.create_session() as db_session:
+        users = db_session.query(User).filter(User.email == email)
     if len(list(users)) > 0:
         return True
     else:
         return False
 
 
-def username_exist(username, session, User):
-    session = session.create_session()
-    users = session.query(User).filter(User.login == username)
+def username_exist(username, db_session, User):
+    with db_session.create_session() as db_session:
+        users = db_session.query(User).filter(User.login == username)
     if len(list(users)) > 0:
         return True
     else:
         return False
+
+
+def remove_auth_sessions(email, db_session, Sessions, User):
+    with db_session.create_session() as db_session:
+        user = db_session.query(User).filter(User.email == email).first()
+        db_session.query(Sessions).filter(Sessions.user_id == user.id).delete()
+        db_session.commit()
 
 
 def create_auth_session(email, db_session, Sessions, User):
-    db_session = db_session.create_session()
-    user = session.query(User).filter(User.email == email).first()
-    session = Sessions()
-    session.user_id = user.id
-    session.auth_date = datetime.now().timestamp()
-    session.user_agent = request.headers.get('User-Agent')
-    db_session.add(session)
-    db_session.coommit()
+    remove_auth_sessions(email, db_session, Sessions, User)
+    with db_session.create_session() as db_session:
+        user = db_session.query(User).filter(User.email == email).first()
+        session = Sessions()
+        session.user_id = user.id
+        session.session_key = token_urlsafe(32)
+        session.auth_date = datetime.now()
+        session.user_agent = request.headers.get('User-Agent')
+        db_session.add(session)
+        db_session.commit()
+        return session.session_key
 
 
 
-def login_user(email, password, session, User):
-    session = session.create_session()
-    user = session.query(User).filter(User.email == email).first()
-    if user.check_password(password):
+def login_user(email, password, db_session, User):
+    with db_session.create_session() as db_session:
+        user = db_session.query(User).filter(User.email == email).first()
+    check_pass = False
+    try:
+        check_pass = user.check_password(password)
+    except AttributeError:
+        pass   
+    if check_pass:
         return True
     else:
         return False
+    
+
+def auth_user_view(db_session, User, Sessions):
+    cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+    base_button = '''
+                    <div class="d-flex ms-auto">
+                        <a href="/auth"><button type="button" class="btn btn-dark">Войти</button></a>
+                    </div>
+                    '''
+    if cookie_data != None:
+            with db_session.create_session() as db_session:
+                session = db_session.query(Sessions).filter(Sessions.session_key == cookie_data).first()
+                # проверка даты и юзерагента
+                user = db_session.query(User).filter(User.id == session.user_id).first()
+                if user.permissions == 'Admin':
+                    admin_link = '''<li><a class="dropdown-item" href="/admin-cabinet">Кабинет Администратора</a></li>'''
+                else:
+                    admin_link = ''
+                return f'''
+                        <div class="d-flex ms-auto">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                                    {user.login}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-lg-end">
+                                    <li><a class="dropdown-item" href="/dashboard">Личный кабинет</a></li>
+                                    {admin_link}
+                                    <li><a class="dropdown-item" href="/auth/logout">Выйти</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        '''
+    else:
+        return base_button

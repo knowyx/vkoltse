@@ -34,9 +34,7 @@
                                 <a class="nav-link" href="/about">О проекте</a>
                              </li>
                         </ul>
-                        <div class="d-flex ms-auto">
-                            <a href="/auth"><button type="button" class="btn btn-dark">Войти</button></a>
-                        </div>
+                        {{ user | safe}}
                     </div>
               </div>
             </nav>

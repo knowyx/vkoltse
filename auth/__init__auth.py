@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, make_response, request
 from auth.auth_forms import RegisterForm, LoginForm, ForgotForm
 from auth.handler import register_user, login_user, create_auth_session
 from data import db_session
@@ -14,7 +14,7 @@ blueprint = Blueprint(
 
 
 @blueprint.route('/auth')
-def get_news():
+def auth():
     return redirect('/auth/login')
 
 
@@ -23,10 +23,14 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if login_user(form.email.data, form.password.data, db_session, Users):
-            # create_auth_session(form.email.data, db_session, Sessions, Users)
-            pass
-        return redirect('/index')
-    return render_template('auth/login.html', pagename='Авторизация', form=form)
+            session_key = create_auth_session(form.email.data, db_session, Sessions, Users)
+            res = make_response('', 302)
+            res.headers["Location"] = '/index'
+            res.set_cookie("session_key (DO NOT SHARE WITH ANYONE!)", session_key, 10 * 24 * 60 * 60, httponly=True)
+            return res
+        else:
+            return redirect('/auth/login?err')
+    return render_template('auth/login.html', pagename='Авторизация', form=form,  err=request.args.get('err', None))
 
 
 @blueprint.route('/auth/forgot-password', methods=['GET', 'POST'])
@@ -42,5 +46,17 @@ def register():
     form = RegisterForm(session=db_session)
     if form.validate_on_submit():
         register_user(form.username.data, form.email.data, form.password.data, db_session, Users)
-        return redirect('/index')
+        session_key = create_auth_session(form.email.data, db_session, Sessions, Users)
+        res = make_response('', 302)
+        res.headers["Location"] = '/index'
+        res.set_cookie("session_key (DO NOT SHARE WITH ANYONE!)", session_key, 10 * 24 * 60 * 60, httponly=True)
+        return res
     return render_template('auth/register.html', pagename='Регистрация', form=form)
+
+
+@blueprint.route('/auth/logout')
+def logout():
+    res = make_response('', 302)
+    res.headers["Location"] = '/index'
+    res.set_cookie("session_key (DO NOT SHARE WITH ANYONE!)", '', 0)
+    return res
