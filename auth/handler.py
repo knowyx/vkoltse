@@ -116,4 +116,19 @@ def auth_user_view(db_session, User, Sessions):
     else:
         admin_link = ''
     return dropout.format(user_login=user.login, admin_link=admin_link)
+
+
+def already_have_token_interval(db_session, email, User, Tokens):
+    with db_session.create_session() as db_session:
+        user = db_session.query(User).filter(User.email == email).first()
+        token = db_session.query(Tokens).filter(Tokens.user_id == user.id).first()
+        print(token.sent_date)
+        if token.sent_date + timedelta(minutes=10) < datetime.now():
+            return True
+        else:
+            return False
+
+
+def create_resetpass_key(db_session, User, Tokens):
+    pass
         

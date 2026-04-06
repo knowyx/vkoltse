@@ -52,6 +52,10 @@ class ForgotForm(FlaskForm):
     def validate_email(self, field):
         if not email_exist(field.data, self.session, Users):
             raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
+    
+
+    # def validate_email(self, field):
+    #     if 
 
 
 class SetupPasswordForm(FlaskForm):
