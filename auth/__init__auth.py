@@ -1,10 +1,11 @@
 from flask import Blueprint, redirect, render_template, make_response, request
-from auth.auth_forms import RegisterForm, LoginForm, ForgotForm
+from auth.auth_forms import RegisterForm, LoginForm, ForgotForm, SetupPasswordForm
 from auth.handler import register_user, login_user, create_auth_session
 from data import db_session
 from data.users import Users
 from data.sessions import Sessions
-
+from secrets import randbelow
+from auth.email_sender import sent_mail
 
 blueprint = Blueprint(
     'auth',
@@ -37,7 +38,7 @@ def login():
 def forgot_password():
     form = ForgotForm(session=db_session)
     if form.validate_on_submit():
-        return redirect('/login')
+        return redirect(f'/auth/forgot-password/setup?email={form.email.data}')
     return render_template('auth/forgot-password.html', pagename='Сброс пароля', form=form)
 
 
@@ -60,3 +61,17 @@ def logout():
     res.headers["Location"] = '/index'
     res.set_cookie("session_key (DO NOT SHARE WITH ANYONE!)", '', 0)
     return res
+
+
+#@blueprint.route('/auth/forgot-password/setup', methods=['GET', 'POST'])
+#def setup_password():
+#    form = SetupPasswordForm()
+#    if form.validate_on_submit():
+#        if form.code.data == code:
+#            print("111111")
+#        print("0000")
+#        return redirect('/login')
+#    else:
+#        code = randbelow(1000000)
+#        sent_mail(request.args.get('email', None), code)
+#    return render_template('auth/setup-password.html', pagename='Установка пароля', form=form)

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, EmailField, ValidationError, IntegerField
 from wtforms.validators import DataRequired
 from auth.handler import email_exist, username_exist
 from data.users import Users
@@ -52,3 +52,10 @@ class ForgotForm(FlaskForm):
     def validate_email(self, field):
         if not email_exist(field.data, self.session, Users):
             raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
+
+
+class SetupPasswordForm(FlaskForm):
+    code = IntegerField('Одноразовый код')
+    password = PasswordField('Пароль', validators=[empty_field_rus])
+    repeat_password = PasswordField('Пароль (еще раз)', validators=[empty_field_rus, validate_password_match])
+    submit = SubmitField('Установить новый пароль')

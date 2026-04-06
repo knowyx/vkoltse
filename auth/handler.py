@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import request
+from flask import request, url_for
 from secrets import token_urlsafe
 
 
@@ -83,12 +83,16 @@ def check_data_and_ua(session_data, db_session, Sessions, User):
 
 def auth_user_view(db_session, User, Sessions):
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-    base_button = '''
-                    <div class="d-flex ms-auto">
-                        <a href="/auth"><button type="button" class="btn btn-dark">Войти</button></a>
-                    </div>
-                    '''
-    
+    try:
+        with open("html/auth/base_button.html", mode='rt', encoding='UTF-8') as file:
+            base_button = file.read()
+
+        with open("html/auth/dropout-authed.html", mode='rt', encoding='UTF-8') as file:
+            dropout = file.read()
+    except FileNotFoundError:
+        print(url_for("static", filename="auth/base-button.html"), url_for("static", filename="auth/dropout-authed.html"))
+        return "Files not found! Please, contact with admin."
+
     if cookie_data == None:
         return base_button
     
@@ -111,18 +115,5 @@ def auth_user_view(db_session, User, Sessions):
         admin_link = '''<li><a class="dropdown-item" href="/admin-cabinet">Кабинет Администратора</a></li>'''
     else:
         admin_link = ''
-    return f'''
-        <div class="d-flex ms-auto">
-            <div class="btn-group">
-                <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-                    {user.login}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-lg-end">
-                    <li><a class="dropdown-item" href="/dashboard">Личный кабинет</a></li>
-                    {admin_link}
-                    <li><a class="dropdown-item" href="/auth/logout">Выйти</a></li>
-                </ul>
-            </div>
-        </div>
-        '''
+    return dropout.format(user_login=user.login, admin_link=admin_link)
         
