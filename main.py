@@ -35,6 +35,7 @@ def main():
     db_session.global_init("db/data.db")
     app.register_blueprint(__init__auth.blueprint)
     init_api(app)
+    app.register_blueprint(story_blueprint)
     app.run(port=8080, host="127.0.0.1")
     
 

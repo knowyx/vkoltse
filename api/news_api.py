@@ -14,7 +14,10 @@ def abort_if_news_not_found(news_id):
 
 
 def parse_date(value):
-    return datetime.strptime(value, "%Y-%m-%d")
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        raise ValueError("Неверный формат даты, ожидается YYYY-MM-DDTHH:MM:SS")
 
 
 parser = reqparse.RequestParser()

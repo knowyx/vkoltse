@@ -2,7 +2,6 @@ from flask_restful import Resource, abort, reqparse
 from flask import jsonify
 from data.db_session import create_session
 from data import db_session
-from datetime import datetime
 
 from data.users import Users
 
@@ -38,7 +37,8 @@ class UsersResource(Resource):
         user.permissions = args["permissions"]
         user.email = args["email"]
         user.login = args["login"]
-        user.set_password(args["password"])
+        if args.get("password"):
+            user.set_password(args["password"])
 
         session.commit()
         return jsonify({"success": "Ok"})
@@ -61,14 +61,16 @@ class UserListResource(Resource):
         args = parser.parse_args()
         session = create_session()
 
+        if session.query(Users).filter_by(login=args["login"]).first():
+            return jsonify({"error": "Login already exists"}), 400
+
         user = Users(
             permissions=args["permissions"],
             email=args["email"],
             login=args["login"]
         )
         user.set_password(args["password"])
-
         session.add(user)
         session.commit()
 
-        return jsonify({"id": user.id})
+        return jsonify({"id": user.id}), 201
