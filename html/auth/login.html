@@ -23,8 +23,13 @@
     {% endfor %}
     </p>
     <div id="captcha-container" class="smart-captcha" data-sitekey="" style="height: 100px; margin-bottom: 20px"></div>
+    {% if err == "captcha" %}
+        <div class="alert alert-danger" role="alert">
+            Необходимо пройти капчу.
+        </div>
+    {% endif %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    {% if err != None %}
+    {% if err == "invcreds" %}
         <div class="alert alert-danger" role="alert">
             Неверный адрес электронной почты или пароль.
         </div>

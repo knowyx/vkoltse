@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
-from flask import request, url_for
+from flask import request
 from secrets import token_urlsafe, SystemRandom
 from auth.email_sender import sent_mail
+
 
 
 def register_user(login, email, password, db_session, User):
@@ -67,19 +68,6 @@ def login_user(email, password, db_session, User):
         return True
     else:
         return False
-    
-
-def check_data_and_ua(session_data, db_session, Sessions, User):
-    if datetime.now() < session_data.auth_date + timedelta(days=10):
-        if request.headers.get('User-Agent') == session_data.user_agent:
-            return True
-        else:
-            return False
-    else:
-        with db_session.create_session() as db_session:
-            db_session.query(Sessions).filter(Sessions.session_key == session_data.session_key).delete()
-            db_session.commit()
-        return False
         
 
 def auth_user_view(db_session, User, Sessions):
@@ -91,7 +79,6 @@ def auth_user_view(db_session, User, Sessions):
         with open("html/auth/dropout-authed.html", mode='rt', encoding='UTF-8') as file:
             dropout = file.read()
     except FileNotFoundError:
-        print(url_for("static", filename="auth/base-button.html"), url_for("static", filename="auth/dropout-authed.html"))
         return "Files not found! Please, contact with admin."
 
     if cookie_data == None:
@@ -106,8 +93,8 @@ def auth_user_view(db_session, User, Sessions):
 
         if datetime.now() > session_data.auth_date + timedelta(days=10):
             db_session.query(Sessions).filter(Sessions.session_key == cookie_data).delete()
-            db_session.commit()
-            return base_button
+            db_session.commit() # удалить куки нужно
+            return 'Remove_cookie'
     
     if request.headers.get('User-Agent') != session_data.user_agent:
         return base_button
@@ -170,3 +157,11 @@ def update_password(db_session, url_key, password, Tokens, User):
         user.set_password(password)
         db_session.query(Tokens).filter(Tokens.user_id == user.id).delete()
         db_session.commit()
+
+
+def check_cookie_exist():
+    cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+    if cookie_data != None:
+        return True
+    else:
+        return False

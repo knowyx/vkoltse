@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from sqlalchemy.testing.pickleable import User
 
 from auth import __init__auth
@@ -15,20 +15,26 @@ app.config['SECRET_KEY'] = 'vkoltse_dev'
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", pagename="Главная", 
-                           user=auth_user_view(db_session, Users, Sessions))
+    user = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
+    return render_template("index.html", pagename="Главная", user=user)
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", pagename='О проекте', 
-                           user=auth_user_view(db_session, Users, Sessions))
+    user = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
+    return render_template("about.html", pagename='О проекте', user=user)
 
 
 @app.errorhandler(404)
 def err404(junk):
-    return render_template("404.html", pagename='404', addr=request.url, 
-                           user=auth_user_view(db_session, Users, Sessions))
+    user = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
+    return render_template("404.html", pagename='404', addr=request.url, user=user)
 
 
 def main():
