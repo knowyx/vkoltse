@@ -40,6 +40,14 @@
     {% endfor %}
     </p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>Пароль должен:</p>
+    <ul>
+        <li>быть длинной от 8 символов</li>
+        <li>содрежать хотя-бы одну заглавную латинскую букву</li>
+        <li>содрежать хотя-бы одну строчную латинскую букву</li>
+        <li>содрежать хотя-бы одну цифру</li>
+        <li>содрежать хотя-бы один символ из набора: !@#$%^&*()_+-?=</li>
+    </ul>
 </form>
 <div>Уже есть аккаунт?<a href="/auth/login" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Войти</button></a></div>
 {% endblock %}

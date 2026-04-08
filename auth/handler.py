@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from flask import request, url_for
-from secrets import token_urlsafe
+from secrets import token_urlsafe, SystemRandom
+from auth.email_sender import sent_mail
 
 
 def register_user(login, email, password, db_session, User):
@@ -118,17 +119,54 @@ def auth_user_view(db_session, User, Sessions):
     return dropout.format(user_login=user.login, admin_link=admin_link)
 
 
-def already_have_token_interval(db_session, email, User, Tokens):
+def have_tokens_in_interval_email(db_session, email, User, Tokens):
     with db_session.create_session() as db_session:
         user = db_session.query(User).filter(User.email == email).first()
         token = db_session.query(Tokens).filter(Tokens.user_id == user.id).first()
-        print(token.sent_date)
-        if token.sent_date + timedelta(minutes=10) < datetime.now():
+        try:
+            if token.sent_date + timedelta(minutes=10) < datetime.now():
+                return False
+            else:
+                return True
+        except AttributeError:
+            return False
+        
+
+def get_token_data(db_session, url_key, User, Tokens):
+    with db_session.create_session() as db_session:
+        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
+        return token
+        
+
+def create_resetpass_key(email, db_session, User, Tokens):
+    with db_session.create_session() as db_session:
+        user = db_session.query(User).filter(User.email == email).first()
+        db_session.query(Tokens).filter(Tokens.user_id == user.id).delete()
+        email_token = Tokens()
+        email_token.url_key = token_urlsafe(32)
+        email_token.email_key = SystemRandom().randint(100000, 999999)
+        email_token.user_id = user.id
+        email_token.type = 0
+        email_token.sent_date = datetime.now()
+        db_session.add(email_token)
+        db_session.commit()
+        sent_mail(email, email_token.email_key)
+        return email_token.url_key
+
+
+def check_email_code(db_session, code, url_key, Tokens):
+    with db_session.create_session() as db_session:
+        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
+        if token.email_key == code:
             return True
         else:
             return False
-
-
-def create_resetpass_key(db_session, User, Tokens):
-    pass
         
+
+def update_password(db_session, url_key, password, Tokens, User):
+    with db_session.create_session() as db_session:
+        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
+        user = db_session.query(User).filter(User.id == token.user_id).first()
+        user.set_password(password)
+        db_session.query(Tokens).filter(Tokens.user_id == user.id).delete()
+        db_session.commit()
