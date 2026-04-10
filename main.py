@@ -7,7 +7,8 @@ from data.sessions import Sessions
 from data import db_session
 from api.__init__api import init_api
 from auth.handler import auth_user_view
- 
+import stories_handlers
+
 app = Flask(__name__, template_folder='html', static_folder="static")
 app.config['SECRET_KEY'] = 'vkoltse_dev'
 
@@ -35,7 +36,7 @@ def main():
     db_session.global_init("db/data.db")
     app.register_blueprint(__init__auth.blueprint)
     init_api(app)
-    app.register_blueprint(story_blueprint)
+    app.register_blueprint(stories_handlers.story_blueprint)
     app.run(port=8080, host="127.0.0.1")
     
 
