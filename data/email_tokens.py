@@ -6,7 +6,7 @@ from data.db_session import SqlAlchemyBase
 class EmailTokens(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'email-tokens'
     id = Column(Integer, primary_key=True)
-    email_key = Column(Integer, nullable=False, unique=True)
+    email_key = Column(Integer, nullable=True, unique=True)
     url_key = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     type = Column(Boolean, nullable=False) # 0 - для токенов сброса пароля, 1 - для токенов подтверждения почты

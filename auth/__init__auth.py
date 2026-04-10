@@ -1,11 +1,13 @@
 from flask import Blueprint, redirect, render_template, make_response, request
-from auth.auth_forms import RegisterForm, LoginForm, ForgotForm, SetupPasswordForm
-from auth.handler import register_user, login_user, create_auth_session, create_resetpass_key, get_token_data, update_password, check_cookie_exist
+from auth.auth_forms import RegisterForm, LoginForm, ForgotForm, SetupPasswordForm, ConfirmMailForm
+from auth.handler import register_user, login_user, create_auth_session, create_resetpass_key, get_token_data
+from auth.handler import update_password, check_cookie_exist, get_user_info_by_session, create_confirm_key, confirm_user, auth_user_view
 from data import db_session
 from data.users import Users
 from data.sessions import Sessions
 from data.email_tokens import EmailTokens
 from auth.captcha_check import check_captcha
+
 
 
 blueprint = Blueprint(
@@ -98,3 +100,50 @@ def setup_password():
         else:
             return redirect(f"/auth/forgot-password/setup?err=captcha&key={url_key}")
     return render_template('auth/setup-password.html', pagename='Установка пароля', form=form, err=request.args.get('err', None))
+
+
+@blueprint.route('/auth/confirm-mail', methods=['GET', 'POST'])
+def confirm_mail_sent():
+    if not check_cookie_exist():
+        return redirect("/")
+    try:
+        session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+        user = get_user_info_by_session(db_session, session_key, Users, Sessions)
+    except AttributeError:
+        return redirect("/")
+    if user.is_confirmed:
+        return redirect("/")
+    user_button = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
+    form = ConfirmMailForm(session=db_session, email=user.email)
+    if form.validate_on_submit():
+        if check_captcha(request.form.get("smart-token"), request.remote_addr):
+            create_confirm_key(user, db_session, EmailTokens)
+            return render_template("auth/confirm_mail_success_sent.html", pagename="Подтверждение аккаунта")
+        else:
+            return redirect("/auth/confirm-mail?err=captcha")
+    return render_template("auth/confirm_mail_sent.html", pagename="Подтверждение аккаунта", form=form, 
+                           err=request.args.get('err', None), 
+                           username=get_user_info_by_session(db_session, session_key, Users, Sessions).login, user=user_button)
+
+
+@blueprint.route('/auth/confirm-mail/confirm')
+def confirm_mail_final():
+    if not check_cookie_exist():
+        return redirect("/")
+    try:
+        session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+        user = get_user_info_by_session(db_session, session_key, Users, Sessions)
+    except AttributeError:
+        return redirect("/")
+    if user.is_confirmed:
+        return redirect("/")
+    user_button = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
+    res = confirm_user(db_session, request.args.get('key', None), EmailTokens, Users)
+    if res:
+        return render_template("auth/confirm_mail_final_success.html", pagename="Подтверждение аккаунта", user=user_button)
+    else:
+        return render_template("auth/confirm_mail_final_fail.html", pagename="Подтверждение аккаунта", user=user_button)

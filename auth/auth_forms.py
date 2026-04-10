@@ -62,7 +62,7 @@ class ForgotForm(FlaskForm):
         if not email_exist(field.data, self.session, Users):
             raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
     
-        if have_tokens_in_interval_email(self.session, field.data, Users, EmailTokens):
+        if have_tokens_in_interval_email(self.session, field.data, Users, EmailTokens, typ=0):
             raise ValidationError('Предыдущий запрос на сброс пароля был отправлен менее, чем 10 минут назад. '+
                                   'Проверьте электронную почту.')
 
@@ -81,3 +81,17 @@ class SetupPasswordForm(FlaskForm):
     def validate_code(self, field):
         if not check_email_code(self.session, field.data, self.url_key, EmailTokens):
             raise ValidationError(f"Неверный код. Попробуйте ввести заново.")
+        
+
+class ConfirmMailForm(FlaskForm):
+    def __init__(self, *args, session=None, email, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.session = session
+        self.email = email    
+
+    submit = SubmitField('Продолжить')
+
+    def validate_submit(self, field):
+        if have_tokens_in_interval_email(self.session, self.email, Users, EmailTokens, typ=1):
+            raise ValidationError('Предыдущий запрос на подтверждение аккаунта был отправлен менее, чем 10 минут назад. '+
+                                  'Проверьте электронную почту.')
