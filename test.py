@@ -1,9 +1,22 @@
-from re import fullmatch, escape
+from data import db_session
+from data.stories import Stories
+from datetime import datetime
 
+db_session.global_init("db/data.db")  # 👈 ВОТ ЭТОГО НЕ ХВАТАЕТ
 
-syms = '!@#$%^&*()_+-?='
-pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*["+escape(syms)+"])[A-Za-z\\d"+escape(syms)+"]{8,}$"
-if fullmatch(pattern, input()):
-    print(1)
-else:
-    print(0)
+session = db_session.create_session()
+
+story = Stories(
+    title="Тестовая история 2",
+    content="Проверка базы2",
+    date=datetime.now(),
+    author_id=1,
+    review_authors_id=1,
+    checked=True
+)
+
+session.add(story)
+session.commit()
+session.close()
+
+print("OK")

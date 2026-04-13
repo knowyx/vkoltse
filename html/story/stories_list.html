@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Список историй{% endblock %}
+
+{% block content %}
+
+<h2>Истории</h2>
+
+{% if stories and stories|length > 0 %}
+
+{% for story in stories %}
+<div class="story">
+
+    <h3>{{ story.title or "Без названия" }}</h3>
+
+    <div class="meta">
+        Автор:
+        {{ story.author.login if story.author else "Неизвестно" }}
+        <br>
+        Проверяющий:
+        {{ story.review_authors.login if story.review_authors else "Не назначен" }}
+        <br>
+        Дата:
+        {% if story.date %}
+        {{ story.date.strftime("%Y-%m-%d %H:%M") }}
+        {% else %}
+        Нет даты
+        {% endif %}
+    </div>
+    <p>
+        {{ story.content or "" }}
+    </p>
+    {% if story.checked %}
+    <div class="checked">✔ Проверено</div>
+    {% else %}
+    <div class="not-checked">✖ Не проверено</div>
+    {% endif %}
+</div>
+<hr>
+{% endfor %}
+
+{% else %}
+<p>Историй пока нет</p>
+{% endif %}
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import orm
 from data.db_session import SqlAlchemyBase
@@ -15,4 +15,4 @@ class Stories(SqlAlchemyBase, SerializerMixin):
     review_authors_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     review_authors = orm.relationship("Users", back_populates="review_stories", foreign_keys=[review_authors_id])
 
-    checked = Column(Integer, nullable=False, default=False)
+    checked = Column(Boolean, nullable=False, default=False)
