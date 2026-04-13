@@ -1,8 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, ValidationError, IntegerField
 from wtforms.validators import DataRequired
-from auth.handler import email_exist, username_exist
+from auth.handler import email_exist, username_exist, have_tokens_in_interval_email, check_email_code
 from data.users import Users
+from data.email_tokens import EmailTokens
+from re import fullmatch, escape
 
 
 def validate_password_match(form, field):
@@ -11,8 +13,15 @@ def validate_password_match(form, field):
         
 
 def empty_field_rus(form, field):
-    if len(field.data) == 0:
+    if len(str(field.data)) == 0:
         raise ValidationError("Поле обязательно к заполнению.")
+    
+
+def easy_password(form, field):
+    syms = '!@#$%^&*()_+-?='
+    pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*["+escape(syms)+"])[A-Za-z\\d"+escape(syms)+"]{8,}$"
+    if not fullmatch(pattern, field.data):
+        raise ValidationError("Пароль слишком простой.")
 
 
 class RegisterForm(FlaskForm):
@@ -22,7 +31,7 @@ class RegisterForm(FlaskForm):
 
     username = StringField('Имя пользователя', validators=[empty_field_rus])
     email = EmailField('Электронная почта', validators=[empty_field_rus])
-    password = PasswordField('Пароль', validators=[empty_field_rus])
+    password = PasswordField('Пароль', validators=[empty_field_rus, easy_password])
     repeat_password = PasswordField('Пароль (еще раз)', validators=[empty_field_rus, validate_password_match])
     submit = SubmitField('Зарегестрироваться')
 
@@ -52,10 +61,37 @@ class ForgotForm(FlaskForm):
     def validate_email(self, field):
         if not email_exist(field.data, self.session, Users):
             raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
+    
+        if have_tokens_in_interval_email(self.session, field.data, Users, EmailTokens, typ=0):
+            raise ValidationError('Предыдущий запрос на сброс пароля был отправлен менее, чем 10 минут назад. '+
+                                  'Проверьте электронную почту.')
 
 
 class SetupPasswordForm(FlaskForm):
-    code = IntegerField('Одноразовый код')
-    password = PasswordField('Пароль', validators=[empty_field_rus])
+    def __init__(self, *args, session=None, url_key, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.session = session
+        self.url_key = url_key
+    
+    code = IntegerField('Одноразовый код', validators=[empty_field_rus])
+    password = PasswordField('Пароль', validators=[empty_field_rus, easy_password])
     repeat_password = PasswordField('Пароль (еще раз)', validators=[empty_field_rus, validate_password_match])
     submit = SubmitField('Установить новый пароль')
+
+    def validate_code(self, field):
+        if not check_email_code(self.session, field.data, self.url_key, EmailTokens):
+            raise ValidationError(f"Неверный код. Попробуйте ввести заново.")
+        
+
+class ConfirmMailForm(FlaskForm):
+    def __init__(self, *args, session=None, email, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.session = session
+        self.email = email    
+
+    submit = SubmitField('Продолжить')
+
+    def validate_submit(self, field):
+        if have_tokens_in_interval_email(self.session, self.email, Users, EmailTokens, typ=1):
+            raise ValidationError('Предыдущий запрос на подтверждение аккаунта был отправлен менее, чем 10 минут назад. '+
+                                  'Проверьте электронную почту.')
