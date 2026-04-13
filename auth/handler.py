@@ -2,7 +2,10 @@ from datetime import datetime, timedelta
 from flask import request
 from secrets import token_urlsafe, SystemRandom
 from auth.email_sender import sent_resetpass_mail, sent_confirm_mail
+import os
 
+
+BASE_DIR = "/home/proj"
 
 
 def register_user(login, email, password, db_session, User):
@@ -73,10 +76,10 @@ def login_user(email, password, db_session, User):
 def auth_user_view(db_session, User, Sessions):
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
     try:
-        with open("html/auth/base_button.html", mode='rt', encoding='UTF-8') as file:
+        with open(os.path.join(BASE_DIR, "html/auth/base_button.html"), mode='rt', encoding='UTF-8') as file:
             base_button = file.read()
 
-        with open("html/auth/dropout-authed.html", mode='rt', encoding='UTF-8') as file:
+        with open(os.path.join(BASE_DIR, "html/auth/dropout-authed.html"), mode='rt', encoding='UTF-8') as file:
             dropout = file.read()
     except FileNotFoundError:
         return "Files not found! Please, contact with admin."
