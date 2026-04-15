@@ -1,6 +1,6 @@
 from flask import render_template
 from data import db_session
-from stories_handlers import story_blueprint
+from .blueprint import story_blueprint
 from data.stories import Stories
 from sqlalchemy.orm import joinedload
 
