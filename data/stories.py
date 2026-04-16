@@ -12,7 +12,7 @@ class Stories(SqlAlchemyBase, SerializerMixin):
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     author = orm.relationship("Users", foreign_keys=[author_id], back_populates="stories")
 
-    review_authors_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    review_authors_id = Column(Integer, ForeignKey('users.id'))
     review_authors = orm.relationship("Users", back_populates="review_stories", foreign_keys=[review_authors_id])
 
     checked = Column(Boolean, nullable=False, default=False)

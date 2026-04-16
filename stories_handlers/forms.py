@@ -11,9 +11,4 @@ class StorySubmitForm(FlaskForm):
         'Текст',
         validators=[DataRequired()]
     )
-    date = DateTimeField(
-        'Дата',
-        format='%Y-%m-%d %H:%M',
-        validators=[DataRequired()]
-    )
     submit = SubmitField('Отправить')
