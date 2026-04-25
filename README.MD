@@ -1,5 +1,14 @@
-Hello, git!
+[![Pylint](https://github.com/knowyx/vkoltse/actions/workflows/pylint.yml/badge.svg)](https://github.com/knowyx/vkoltse/actions/workflows/pylint.yml)
 
+<img src="/static/img/logo.svg" alt="Логотип проекта" width="200" height="200">
+
+Образование в кольце — это проект, созданный учениками учениками 10 класса, чтобы сохранить память о подвиге, совершенном нашими предками. 
+Проект находится на стадии разработки.
+Наши домены:
+```
+vkoltse.ru
+вкольце.рф
+```
 
 prod run:
 ```
