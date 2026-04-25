@@ -2,9 +2,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import url_for
+import os
 
 SERVER = "smtp.timeweb.ru"
 PORT = 465
+
+BASE_URL = ".../html/email" #<- put abs path here
 
 
 def sent_mail(sender_email, password, message):
@@ -26,7 +29,7 @@ def sent_resetpass_mail(reciver, code):
     message["To"] = reciver
     message["Subject"] = "Восстановление пароля | Образование в кольце"
     
-    with open("html/email/reset-password.html", mode='rt', encoding='UTF-8') as f:
+    with open(os.path.join(BASE_URL, "reset-password.html"), mode='rt', encoding='UTF-8') as f:
         text = f.read()
     text = text.format(code=code, img_path=url_for('static', filename='img/logo.svg'))
     message.attach(MIMEText(text, "html"))
@@ -44,7 +47,7 @@ def sent_confirm_mail(reciver, url_key, host):
     message["Subject"] = "Подтверждение аккаунта | Образование в кольце"
     
     url = f"{host}auth/confirm-mail/confirm?key={url_key}"
-    with open("html/email/confirm_mail.html", mode='rt', encoding='UTF-8') as f:
+    with open(os.path.join(BASE_URL, "confirm_mail.html"), mode='rt', encoding='UTF-8') as f:
         text = f.read()
     text = text.format(link=url, img_path=url_for('static', filename='img/logo.svg'))
     message.attach(MIMEText(text, "html"))

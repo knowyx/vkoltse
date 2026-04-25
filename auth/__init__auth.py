@@ -18,7 +18,7 @@ blueprint = Blueprint(
 
 
 @blueprint.route('/auth')
-def auth():
+def authREDIR():
     if check_cookie_exist():
         return redirect("/")
     return redirect('/auth/login')
