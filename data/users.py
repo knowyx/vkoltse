@@ -9,7 +9,7 @@ from sqlalchemy import orm
 class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    permissions = Column(String, nullable=False)
+    permissions = Column(Boolean, nullable=False)
     email = Column(String, nullable=False, unique=True)
     login = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)

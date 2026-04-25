@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Проверка историй</h1>
+{% if err == "invalid-id-type" %}
+<div class="alert alert-danger" role="alert">
+    В качестве id были переданы неверные данные: "{{ id }}".
+</div>
+{% endif %}
+{% if err == "invalid-id" %}
+<div class="alert alert-danger" role="alert">
+    История с id "{{ id }}" уже подтверждена или не найдена в базе.
+</div>
+{% endif %}
+{% if success == "1" and err == None %}
+<div class="alert alert-success" role="alert">
+    Успешное подтверждение истории с id "{{ id }}"!
+</div>
+{% endif %}
+{% if success == "-1" and err == None %}
+<div class="alert alert-success" role="alert">
+    История с id "{{ id }}" успешно отклонена.
+</div>
+{% endif %}
+{% if err == "nothing" %}
+<div class="alert alert-danger" role="alert">
+    Произошла неизвестная ошибка.
+</div>
+{% endif %}
+{% if stories and stories|length > 0 %}
+
+{% for story in stories %}
+<div class="story">
+
+    <h3>{{ story.title or "Без названия" }}</h3>
+
+    <div class="meta">
+        Автор:
+        {{ story.author.login if story.author else "Неизвестно" }}
+        <br>
+        Дата:
+        {% if story.date %}
+        {{ story.date.strftime("%Y-%m-%d %H:%M") }}
+        {% else %}
+        Нет даты
+        {% endif %}
+    </div>
+    <p>
+        {{ story.content or "" }}
+    </p>
+    <a href="/cabinet/admin/story-change-status?id={{ story.id }}&type=1"><button type="button" class="btn btn-primary">Подтвердить</button></a>
+    <a href="/cabinet/admin/story-change-status?id={{ story.id }}&type=-1"><button type="button" class="btn btn-danger">Отклонить</button></a>
+</div>
+<hr>
+{% endfor %}
+
+{% else %}
+<p>Нет историй, требующих модерации</p>
+{% endif %}
+{% endblock %}

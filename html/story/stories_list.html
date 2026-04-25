@@ -4,8 +4,12 @@
 
 {% block content %}
 
-<h2>Истории</h2>
-
+<h1>Истории</h1>
+{% if success == "1"%}
+<div class="alert alert-success" role="alert">
+    История оправлена на модерацию.
+</div>
+{% endif %}
 {% if stories and stories|length > 0 %}
 
 {% for story in stories %}
@@ -30,11 +34,6 @@
     <p>
         {{ story.content or "" }}
     </p>
-    {% if story.checked %}
-    <div class="checked">✔ Проверено</div>
-    {% else %}
-    <div class="not-checked">✖ Не проверено</div>
-    {% endif %}
 </div>
 <hr>
 {% endfor %}
@@ -42,5 +41,5 @@
 {% else %}
 <p>Историй пока нет</p>
 {% endif %}
-
+<a href="/story/submit"><button type="button" class="btn btn-primary">Подать историю</button></a>
 {% endblock %}

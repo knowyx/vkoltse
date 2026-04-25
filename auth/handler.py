@@ -5,7 +5,7 @@ from auth.email_sender import sent_resetpass_mail, sent_confirm_mail
 import os
 
 
-BASE_DIR = "/home/proj"
+BASE_DIR = "..."
 
 
 def register_user(login, email, password, db_session, User):
@@ -14,7 +14,7 @@ def register_user(login, email, password, db_session, User):
         user.login = login
         user.email = email
         user.set_password(password)
-        user.permissions = '0'
+        user.permissions = 0
         db_session.add(user)
         db_session.commit()
 
@@ -102,8 +102,8 @@ def auth_user_view(db_session, User, Sessions):
     if request.headers.get('User-Agent') != session_data.user_agent:
         return base_button
     
-    if user.permissions == 'Admin':
-        admin_link = '''<li><a class="dropdown-item" href="/admin-cabinet">Кабинет Администратора</a></li>'''
+    if user.permissions:
+        admin_link = '''<li><a class="dropdown-item" href="/cabinet/admin">Кабинет Администратора</a></li>'''
     else:
         admin_link = ''
     if not user.is_confirmed:

@@ -1,16 +1,20 @@
 from .blueprint import story_blueprint
-from flask import render_template, session, redirect
+from flask import render_template, request, redirect, abort
 from data import db_session
 from data.stories import Stories
 from .forms import StorySubmitForm
 from data.sessions import Sessions
 from datetime import datetime
+from auth.handler import auth_user_view
+from data.users import Users
 
 @story_blueprint.route("/story/submit", methods=["GET", "POST"])
 def story_submit():
-    user = get_current_user()
-    if not user:
-        return redirect("/auth/login")
+    if not check_cookie_exist():
+        return abort(403, "Для совершения этого действия необходимо авторизоваться.")
+    user = auth_user_view(db_session, Users, Sessions)
+    if user == 'Remove_cookie':
+        return redirect("/auth/logout")
     
     form = StorySubmitForm()
     print(form.errors)
@@ -20,31 +24,29 @@ def story_submit():
             story = Stories(
                 title=form.title.data,
                 content=form.content.data,
-                author_id=1,
-                date=datetime.utcnow(),
-                review_authors=0
+                author_id=get_user_id(db_session),
+                date=datetime.now()
             )
             connection_db.add(story)
             connection_db.commit()
         finally:
             connection_db.close()
             
-        return render_template("story_submit.html", form=form, success=True)
+        return redirect("/story?success=1")
     
-    return render_template("story_submit.html", form=form)
+    return render_template("story_submit.html", form=form, user=user)
 
 
-def get_current_user():
-    session_key = session.get("session_key")
-    if not session_key:
-        return None
+def check_cookie_exist():
+    session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+    if session_key:
+        return True
+    else:
+        return False
+    
 
-    db_sess = db_session.create_session()
-    sess = db_sess.query(Sessions).filter(
-        Sessions.session_key == session_key
-    ).first()
-
-    if not sess:
-        return None
-
-    return sess.user
+def get_user_id(db_session):
+    session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+    with db_session.create_session() as db_session:
+        session = db_session.query(Sessions).filter(Sessions.session_key == session_key).first()
+    return session.user_id

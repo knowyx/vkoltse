@@ -2,7 +2,7 @@ import sys
 import os
 import traceback
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, os.path.join(BASE_DIR, "venv1/lib/python3.10/site-packages"))
@@ -16,7 +16,8 @@ try:
     from api.__init__api import init_api
 
     from auth import __init__auth
-    import stories_handlers
+    from stories_handlers import blueprint as story_bp
+    from cabinet import blueprint as cab_bp
 
     db_path = os.path.join(BASE_DIR, "db/data.db")
     print(f"DB PATH: {db_path}", file=sys.stderr)
@@ -24,7 +25,8 @@ try:
     db_session.global_init(db_path)
 
     app.register_blueprint(__init__auth.blueprint)
-    app.register_blueprint(stories_handlers.story_blueprint)
+    app.register_blueprint(story_bp.story_blueprint)
+    app.register_blueprint(cab_bp.cabinet_blueprint)
 
     init_api(app)
 
