@@ -18,6 +18,7 @@ try:
     from auth import __init__auth
     from stories_handlers import blueprint as story_bp
     from cabinet import blueprint as cab_bp
+    from news import blueprint as news_bp
 
     db_path = os.path.join(BASE_DIR, "db/data.db")
     print(f"DB PATH: {db_path}", file=sys.stderr)
@@ -27,6 +28,7 @@ try:
     app.register_blueprint(__init__auth.blueprint)
     app.register_blueprint(story_bp.story_blueprint)
     app.register_blueprint(cab_bp.cabinet_blueprint)
+    app.register_blueprint(news_bp.news_blueprint)
 
     init_api(app)
 

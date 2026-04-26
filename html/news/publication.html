@@ -1,0 +1,14 @@
+{% extends "base.html"%}
+
+{% block content %}
+    <h1>{{news.title}}</h1>
+    {% if news.cover_filename != None %}
+        <img src="{{ url_for('user_upload', filename=news.cover_filename) }}" class="img-fluid">
+    {% endif %}
+    Автор: {{ news.user.login }} <br>
+    Дата публикации: {{ news.date.strftime("%Y-%m-%d %H:%M") }}
+    <hr>
+    {% for paragraph in news.content %}
+        <p>{{ paragraph }}</p>
+    {% endfor %}
+{% endblock %}

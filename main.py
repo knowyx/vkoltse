@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect
-from sqlalchemy.testing.pickleable import User
+from flask import Flask, render_template, request, redirect, send_from_directory
 
 from auth import __init__auth
 from data.users import Users
@@ -8,9 +7,13 @@ from data import db_session
 from api.__init__api import init_api
 from auth.handler import auth_user_view
 from stories_handlers.blueprint import story_blueprint
+import os
 
 app = Flask(__name__, template_folder='html', static_folder="static")
 app.config['SECRET_KEY'] = 'vkoltse_dev'
+
+
+BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 
 @app.route("/")
@@ -44,6 +47,12 @@ def err404(junk):
     if user == 'Remove_cookie':
         return redirect("/auth/logout")
     return render_template("404.html", pagename='404. Not Found', addr=request.url, user=user)
+
+
+@app.route('/media/user_upload/<path:filename>')
+def user_upload(filename):
+    path = os.path.join(BASE_DIR, 'media', 'user_upload')
+    return send_from_directory(path, filename)
 
 
 def main():
