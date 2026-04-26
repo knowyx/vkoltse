@@ -17,4 +17,4 @@ def admin_cabinet():
     stories = get_stories(db_session, Stories)
     return render_template("admin_cabinet.html", pagename = "Кабинет Администратора", user=user,
                            stories=stories, err=request.args.get('err', None), id=request.args.get('id', None),
-                           success=request.args.get('success', None))
+                           success=request.args.get('success', None), news_success=request.args.get('news-success', None))

@@ -5,7 +5,7 @@ from auth.email_sender import sent_resetpass_mail, sent_confirm_mail
 import os
 
 
-BASE_DIR = "..."
+BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 
 def register_user(login, email, password, db_session, User):

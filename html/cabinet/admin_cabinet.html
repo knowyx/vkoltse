@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Новости</h1>
+{% if news_success == "1" %}
+<div class="alert alert-success" role="alert">
+    Новость успешно добавлена!
+</div>
+{% endif %}
+<a href="/news/add"><button type="button" class="btn btn-primary">Добавить новость</button></a>
+<a href="/news"><button type="button" class="btn btn-secondary">Перейти в раздел "Новости"</button></a>
+<hr>
 <h1>Проверка историй</h1>
 {% if err == "invalid-id-type" %}
 <div class="alert alert-danger" role="alert">
