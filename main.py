@@ -18,14 +18,14 @@ BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 @app.route("/")
 @app.route("/index")
-def index():
+def index(): # route for index page, supports GET method, returns index page with user information if session exists, otherwise redirects to logout
     user = auth_user_view(db_session, Users, Sessions)
     if user == 'Remove_cookie':
         return redirect("/auth/logout")
     return render_template("index.html", pagename="Главная", user=user)
 
 
-@app.route("/about")
+@app.route("/about") # route for about page, supports GET method
 def about():
     user = auth_user_view(db_session, Users, Sessions)
     if user == 'Remove_cookie':
@@ -33,7 +33,7 @@ def about():
     return render_template("about.html", pagename='О проекте', user=user)
 
 
-@app.errorhandler(403)
+@app.errorhandler(403) # handler for 403 error, returns 403 page with error message and user information if session exists, otherwise redirects to logout
 def err403(msg):
     user = auth_user_view(db_session, Users, Sessions)
     if user == 'Remove_cookie':
@@ -41,7 +41,7 @@ def err403(msg):
     return render_template("403.html", pagename='403. Forbidden', user=user, msg=msg.description)
 
 
-@app.errorhandler(404)
+@app.errorhandler(404) # handler for 404 error, returns 404 page with error message and user information if session exists, otherwise redirects to logout
 def err404(junk):
     user = auth_user_view(db_session, Users, Sessions)
     if user == 'Remove_cookie':
@@ -50,12 +50,12 @@ def err404(junk):
 
 
 @app.route('/media/user_upload/<path:filename>')
-def user_upload(filename):
+def user_upload(filename): # route for serving user uploaded files, supports GET method, returns file from user_upload directory if session exists, otherwise redirects to logout
     path = os.path.join(BASE_DIR, 'media', 'user_upload')
     return send_from_directory(path, filename)
 
 
-def main():
+def main(): # main function, initializes database, registers blueprints and runs the app
     db_session.global_init("db/data.db")
     app.register_blueprint(__init__auth.blueprint)
     init_api(app)

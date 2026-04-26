@@ -7,7 +7,7 @@ from auth.handler import auth_user_view
 from data.users import Users
 from data.sessions import Sessions
 
-@story_blueprint.route("/story")
+@story_blueprint.route("/story") # route for showing stories list, supports GET method
 def show_stories():
     user = auth_user_view(db_session, Users, Sessions)
     if user == 'Remove_cookie':

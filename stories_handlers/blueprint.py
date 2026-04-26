@@ -1,3 +1,4 @@
+# Blueprint for stories handlers
 import flask
 
 story_blueprint = flask.Blueprint(

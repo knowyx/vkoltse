@@ -6,28 +6,28 @@ from data import db_session
 from datetime import datetime
 
 
-def abort_if_news_not_found(news_id):
+def abort_if_news_not_found(news_id): # function for checking if news exists
     session = db_session.create_session()
     news = session.get(News, news_id)
     if not news:
         abort(404, message=f"News {news_id} not found")
 
 
-def parse_date(value):
+def parse_date(value): # function for parsing date from string, expected format: YYYY-MM-DDTHH:MM:SS
     try:
         return datetime.fromisoformat(value)
     except ValueError:
         raise ValueError("Неверный формат даты, ожидается YYYY-MM-DDTHH:MM:SS")
 
 
-parser = reqparse.RequestParser()
+parser = reqparse.RequestParser() # parser for parsing request data for creating and updating news
 parser.add_argument('title', required=True, type=str)
 parser.add_argument('content', required=True, type=str)
 parser.add_argument('date', required=True, type=parse_date)
 parser.add_argument('user_id', required=True, type=int)
 
 
-class NewsResource(Resource):
+class NewsResource(Resource): # resource for working with news, supports GET, DELETE and PUT methods
     def get(self, news_id):
         abort_if_news_not_found(news_id)
         session = create_session()
@@ -57,7 +57,7 @@ class NewsResource(Resource):
 
         return jsonify({"success": "Ok"})
 
-class NewsListResource(Resource):
+class NewsListResource(Resource): # resource for working with news list, supports GET and POST methods
     def get(self):
         session = create_session()
         news = session.query(News).all()

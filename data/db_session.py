@@ -1,3 +1,4 @@
+# This file is used to create database session and initialize new database if it doesn't exist
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session

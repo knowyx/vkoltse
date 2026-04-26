@@ -3,6 +3,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import orm
 from data.db_session import SqlAlchemyBase
 
+# class for email suggestions tokens
 class EmailTokens(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'email-tokens'
     id = Column(Integer, primary_key=True)

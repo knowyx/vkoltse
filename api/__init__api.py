@@ -1,3 +1,4 @@
+# This file initializes the API for the application, defining the endpoints and their corresponding resources.
 from flask_restful import Api
 from .news_api import NewsResource, NewsListResource
 from .users_api import UsersResource, UserListResource

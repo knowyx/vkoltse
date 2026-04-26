@@ -5,21 +5,21 @@ from data import db_session
 from data.stories import Stories
 from datetime import datetime
 
-def str_to_datetime(value):
+def str_to_datetime(value): # function for parsing date from string, expected format: YYYY-MM-DDTHH:MM:SS
     try:
         return datetime.fromisoformat(value)
     except ValueError:
         raise ValueError("Неверный формат даты, ожидается YYYY-MM-DDTHH:MM:SS")
 
 
-def abort_if_not_exist(story_id):
+def abort_if_not_exist(story_id): # function for checking if story exists
     session = create_session()
     story = session.get(Stories, story_id)
     if not story:
         abort(404, message=f"Story {story_id} not found")
 
 
-parser = reqparse.RequestParser()
+parser = reqparse.RequestParser() # parser for parsing request data for creating and updating stories
 parser.add_argument("content", required=True, type=str)
 parser.add_argument("title", required=True, type=str)
 parser.add_argument("author_id", required=True, type=int)
@@ -27,7 +27,7 @@ parser.add_argument("review_authors_id", required=True, type=int)
 parser.add_argument("date", required=True, type=str_to_datetime)
 parser.add_argument("checked", required=True, type=int)
 
-class StoriesResource(Resource):
+class StoriesResource(Resource): # resource for working with stories, supports GET, DELETE and PUT methods
     def get(self, story_id):
         abort_if_not_exist(story_id)
         session = create_session()
@@ -60,7 +60,7 @@ class StoriesResource(Resource):
 
         return jsonify({"success": "Ok"})
 
-class StoriesListResource(Resource):
+class StoriesListResource(Resource): # resource for working with stories list, supports GET and POST methods
     def get(self):
         session = create_session()
         stories = session.query(Stories).all()
