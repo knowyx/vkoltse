@@ -2,8 +2,8 @@
 import flask
 
 story_blueprint = flask.Blueprint(
-    'stories_handlers',
+    "stories_handlers",
     __name__,
-    template_folder='../html/story',
-    static_folder='../static'
+    template_folder="../html/story",
+    static_folder="../static",
 )

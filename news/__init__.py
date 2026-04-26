@@ -1,3 +1,1 @@
-from . import route_add_news
-from . import route_news_list
-from . import route_view_publication
+from . import route_add_news, route_news_list, route_view_publication

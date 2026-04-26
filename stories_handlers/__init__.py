@@ -1,2 +1,1 @@
-from . import route_storylist
-from . import route_storysubmit
+from . import route_storylist, route_storysubmit

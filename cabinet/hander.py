@@ -17,10 +17,12 @@ def check_admin_status(db_session, Users, Sessions):
 
 def get_stories(db_session, Stories):
     with db_session.create_session() as db_session:
-        stories = db_session.query(Stories).options(
-            joinedload(Stories.author),
-            joinedload(Stories.review_authors)
-        ).filter(Stories.checked == 0).all()
+        stories = (
+            db_session.query(Stories)
+            .options(joinedload(Stories.author), joinedload(Stories.review_authors))
+            .filter(Stories.checked == 0)
+            .all()
+        )
     return stories
 
 
@@ -49,4 +51,3 @@ def remove_story(db_session, id, Stories):
         db_session.query(Stories).filter(Stories.id == id, Stories.checked == 0).delete()
         db_session.commit()
     return True
-

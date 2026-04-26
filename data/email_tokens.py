@@ -1,15 +1,17 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
-from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import orm
 from data.db_session import SqlAlchemyBase
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, orm
+from sqlalchemy_serializer import SerializerMixin
+
 
 # class for email suggestions tokens
 class EmailTokens(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'email-tokens'
+    __tablename__ = "email-tokens"
     id = Column(Integer, primary_key=True)
     email_key = Column(Integer, nullable=True, unique=True)
     url_key = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(Boolean, nullable=False) # 0 - для токенов сброса пароля, 1 - для токенов подтверждения почты
+    type = Column(
+        Boolean, nullable=False
+    )  # 0 - для токенов сброса пароля, 1 - для токенов подтверждения почты
     user = orm.relationship("Users", back_populates="email_tokens")
     sent_date = Column(DateTime)

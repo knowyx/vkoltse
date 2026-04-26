@@ -1,5 +1,7 @@
-from flask import request
 from datetime import datetime
+
+from flask import request
+
 
 def check_admin_status(db_session, Users, Sessions):
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
@@ -12,7 +14,7 @@ def check_admin_status(db_session, Users, Sessions):
         user = db_session.query(Users).filter(Users.id == session.user_id).first()
         print(user.permissions)
         return user.permissions
-    
+
 
 def save_news(db_session, News, title, content, filename, Sessions):
     with db_session.create_session() as db_session:
@@ -25,7 +27,7 @@ def save_news(db_session, News, title, content, filename, Sessions):
             title=title,
             content=paragraphs,
             cover_filename=filename,
-            date=datetime.now()
+            date=datetime.now(),
         )
         db_session.add(news)
         db_session.commit()

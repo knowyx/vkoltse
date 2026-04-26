@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
-from flask import request
-from secrets import token_urlsafe, SystemRandom
-from auth.email_sender import sent_resetpass_mail, sent_confirm_mail
 import os
+from datetime import datetime, timedelta
+from secrets import SystemRandom, token_urlsafe
 
+from auth.email_sender import sent_confirm_mail, sent_resetpass_mail
+from flask import request
 
 BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
@@ -52,11 +52,10 @@ def create_auth_session(email, db_session, Sessions, User):
         session.user_id = user.id
         session.session_key = token_urlsafe(32)
         session.auth_date = datetime.now()
-        session.user_agent = request.headers.get('User-Agent')
+        session.user_agent = request.headers.get("User-Agent")
         db_session.add(session)
         db_session.commit()
         return session.session_key
-
 
 
 def login_user(email, password, db_session, User):
@@ -66,30 +65,40 @@ def login_user(email, password, db_session, User):
     try:
         check_pass = user.check_password(password)
     except AttributeError:
-        pass   
+        pass
     if check_pass:
         return True
     else:
         return False
-        
+
 
 def auth_user_view(db_session, User, Sessions):
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
     try:
-        with open(os.path.join(BASE_DIR, "html/auth/base_button.html"), mode='rt', encoding='UTF-8') as file:
+        with open(
+            os.path.join(BASE_DIR, "html/auth/base_button.html"),
+            mode="rt",
+            encoding="UTF-8",
+        ) as file:
             base_button = file.read()
 
-        with open(os.path.join(BASE_DIR, "html/auth/dropout-authed.html"), mode='rt', encoding='UTF-8') as file:
+        with open(
+            os.path.join(BASE_DIR, "html/auth/dropout-authed.html"),
+            mode="rt",
+            encoding="UTF-8",
+        ) as file:
             dropout = file.read()
     except FileNotFoundError:
         return "Files not found! Please, contact with admin."
 
     if cookie_data == None:
         return base_button
-    
+
     with db_session.create_session() as db_session:
         try:
-            session_data = db_session.query(Sessions).filter(Sessions.session_key == cookie_data).first()
+            session_data = (
+                db_session.query(Sessions).filter(Sessions.session_key == cookie_data).first()
+            )
             user = db_session.query(User).filter(User.id == session_data.user_id).first()
         except AttributeError:
             return base_button
@@ -97,19 +106,21 @@ def auth_user_view(db_session, User, Sessions):
         if datetime.now() > session_data.auth_date + timedelta(days=10):
             db_session.query(Sessions).filter(Sessions.session_key == cookie_data).delete()
             db_session.commit()
-            return 'Remove_cookie'
-    
-    if request.headers.get('User-Agent') != session_data.user_agent:
+            return "Remove_cookie"
+
+    if request.headers.get("User-Agent") != session_data.user_agent:
         return base_button
-    
+
     if user.permissions:
-        admin_link = '''<li><a class="dropdown-item" href="/cabinet/admin">Кабинет Администратора</a></li>'''
+        admin_link = (
+            """<li><a class="dropdown-item" href="/cabinet/admin">Кабинет Администратора</a></li>"""
+        )
     else:
-        admin_link = ''
+        admin_link = ""
     if not user.is_confirmed:
-        confirm_link = '''<li><a class="dropdown-item" href="/auth/confirm-mail">Подтвердить аккаунт</a></li>'''
+        confirm_link = """<li><a class="dropdown-item" href="/auth/confirm-mail">Подтвердить аккаунт</a></li>"""
     else:
-        confirm_link = ''
+        confirm_link = ""
     return dropout.format(user_login=user.login, admin_link=admin_link, confirm_link=confirm_link)
 
 
@@ -124,13 +135,13 @@ def have_tokens_in_interval_email(db_session, email, User, Tokens, typ):
                 return True
         except AttributeError:
             return False
-        
+
 
 def get_token_data(db_session, url_key, User, Tokens):
     with db_session.create_session() as db_session:
         token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
         return token
-        
+
 
 def create_resetpass_key(email, db_session, User, Tokens):
     with db_session.create_session() as db_session:
@@ -168,7 +179,6 @@ def create_confirm_key(user, db_session, Tokens):
         sent_confirm_mail(user.email, email_token.url_key, request.host_url)
 
 
-
 def check_email_code(db_session, code, url_key, Tokens):
     with db_session.create_session() as db_session:
         token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
@@ -176,7 +186,7 @@ def check_email_code(db_session, code, url_key, Tokens):
             return True
         else:
             return False
-        
+
 
 def update_password(db_session, url_key, password, Tokens, User):
     with db_session.create_session() as db_session:
@@ -193,7 +203,7 @@ def check_cookie_exist():
         return True
     else:
         return False
-    
+
 
 def confirm_user(db_session, key, EmailTokens, Users):
     with db_session.create_session() as db_session:
@@ -201,7 +211,7 @@ def confirm_user(db_session, key, EmailTokens, Users):
         if token == None:
             return False
         user = db_session.query(Users).filter(Users.id == token.user_id).first()
-        user.is_confirmed = True  
+        user.is_confirmed = True
         db_session.query(EmailTokens).filter(EmailTokens.url_key == key).delete()
         db_session.commit()
         return True
