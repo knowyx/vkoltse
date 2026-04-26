@@ -1,3 +1,4 @@
+# This module contains api resources for working with news
 from datetime import datetime
 
 from data import db_session
@@ -23,7 +24,9 @@ def parse_date(
         raise ValueError("Неверный формат даты, ожидается YYYY-MM-DDTHH:MM:SS")
 
 
-parser = reqparse.RequestParser()  # parser for parsing request data for creating and updating news
+parser = (
+    reqparse.RequestParser()
+)  # parser for parsing request data for creating and updating news
 parser.add_argument("title", required=True, type=str)
 parser.add_argument("content", required=True, type=str)
 parser.add_argument("date", required=True, type=parse_date)
@@ -76,7 +79,8 @@ class NewsListResource(
         return jsonify(
             {
                 "news": [
-                    item.to_dict(only=("id", "title", "content", "date", "user")) for item in news
+                    item.to_dict(only=("id", "title", "content", "date", "user"))
+                    for item in news
                 ]
             }
         )

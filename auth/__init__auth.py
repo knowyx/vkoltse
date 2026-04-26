@@ -1,3 +1,4 @@
+# This module contains authentication blueprint for the application, it provides routes for login, registration, password reset and email confirmation, it also contains forms for these actions and functions for handling authentication logic
 from auth.auth_forms import (
     ConfirmMailForm,
     ForgotForm,
@@ -45,7 +46,9 @@ def login():
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
             if login_user(form.email.data, form.password.data, db_session, Users):
-                session_key = create_auth_session(form.email.data, db_session, Sessions, Users)
+                session_key = create_auth_session(
+                    form.email.data, db_session, Sessions, Users
+                )
                 res = make_response("", 302)
                 res.headers["Location"] = "/index"
                 res.set_cookie(
@@ -55,10 +58,9 @@ def login():
                     httponly=True,
                 )
                 return res
-            else:
-                return redirect("/auth/login?err=invcreds")
-        else:
-            return redirect("/auth/login?err=captcha")
+
+            return redirect("/auth/login?err=invcreds")
+        return redirect("/auth/login?err=captcha")
     return render_template(
         "auth/login.html",
         pagename="Авторизация",
@@ -75,10 +77,11 @@ def forgot_password():
     form = ForgotForm(session=db_session)
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
-            url_key = create_resetpass_key(form.email.data, db_session, Users, EmailTokens)
+            url_key = create_resetpass_key(
+                form.email.data, db_session, Users, EmailTokens
+            )
             return redirect(f"/auth/forgot-password/setup?key={url_key}")
-        else:
-            return redirect("/auth/forgot-password?err=captcha")
+        return redirect("/auth/forgot-password?err=captcha")
     return render_template(
         "auth/forgot-password.html",
         pagename="Сброс пароля",
@@ -102,7 +105,9 @@ def register():
                 db_session,
                 Users,
             )
-            session_key = create_auth_session(form.email.data, db_session, Sessions, Users)
+            session_key = create_auth_session(
+                form.email.data, db_session, Sessions, Users
+            )
             res = make_response("", 302)
             res.headers["Location"] = "/index"
             res.set_cookie(
@@ -112,8 +117,7 @@ def register():
                 httponly=True,
             )
             return res
-        else:
-            return redirect("/auth/register?err=captcha")
+        return redirect("/auth/register?err=captcha")
     return render_template(
         "auth/register.html",
         pagename="Регистрация",
@@ -147,8 +151,7 @@ def setup_password():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
             update_password(db_session, url_key, form.password.data, EmailTokens, Users)
             return redirect("/auth/login")
-        else:
-            return redirect(f"/auth/forgot-password/setup?err=captcha&key={url_key}")
+        return redirect(f"/auth/forgot-password/setup?err=captcha&key={url_key}")
     return render_template(
         "auth/setup-password.html",
         pagename="Установка пароля",
@@ -179,14 +182,15 @@ def confirm_mail_sent():
             return render_template(
                 "auth/confirm_mail_success_sent.html", pagename="Подтверждение аккаунта"
             )
-        else:
-            return redirect("/auth/confirm-mail?err=captcha")
+        return redirect("/auth/confirm-mail?err=captcha")
     return render_template(
         "auth/confirm_mail_sent.html",
         pagename="Подтверждение аккаунта",
         form=form,
         err=request.args.get("err", None),
-        username=get_user_info_by_session(db_session, session_key, Users, Sessions).login,
+        username=get_user_info_by_session(
+            db_session, session_key, Users, Sessions
+        ).login,
         user=user_button,
     )
 
@@ -213,9 +217,8 @@ def confirm_mail_final():
             pagename="Подтверждение аккаунта",
             user=user_button,
         )
-    else:
-        return render_template(
-            "auth/confirm_mail_final_fail.html",
-            pagename="Подтверждение аккаунта",
-            user=user_button,
-        )
+    return render_template(
+        "auth/confirm_mail_final_fail.html",
+        pagename="Подтверждение аккаунта",
+        user=user_button,
+    )

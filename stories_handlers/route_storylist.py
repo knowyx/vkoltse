@@ -1,3 +1,4 @@
+# route for showing stories list
 from auth.handler import auth_user_view
 from data import db_session
 from data.sessions import Sessions

@@ -1,3 +1,4 @@
+# route for adding news
 import os
 from secrets import token_urlsafe
 
@@ -32,7 +33,10 @@ def add_news():
             file.save(os.path.join(BASE_DIR, "media/user_upload", filename))
         except AttributeError:
             filename = None
-        save_news(db_session, News, form.title.data, form.content.data, filename, Sessions)
+        save_news(
+            db_session, News, form.title.data, form.content.data, filename, Sessions
+        )
         return redirect("/cabinet/admin?news-success=1")
-    else:
-        return render_template("add_news.html", pagename="Отправка новости", user=user, form=form)
+    return render_template(
+        "add_news.html", pagename="Отправка новости", user=user, form=form
+    )

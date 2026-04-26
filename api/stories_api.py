@@ -1,3 +1,4 @@
+# Thise module contains api resources for working with stories
 from datetime import datetime
 
 from data.db_session import create_session

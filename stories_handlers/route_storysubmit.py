@@ -1,3 +1,4 @@
+# route for submitting stories
 from datetime import datetime
 
 from auth.handler import auth_user_view
@@ -57,5 +58,9 @@ def get_user_id(
 ):  # function for getting user id from session cookie, returns user id if session exists, None otherwise
     session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
     with db_session.create_session() as db_session:
-        session = db_session.query(Sessions).filter(Sessions.session_key == session_key).first()
+        session = (
+            db_session.query(Sessions)
+            .filter(Sessions.session_key == session_key)
+            .first()
+        )
     return session.user_id

@@ -1,3 +1,4 @@
+# Model with base
 from data.db_session import SqlAlchemyBase
 from flask_login import UserMixin
 from sqlalchemy import Boolean, Column, Integer, String, orm

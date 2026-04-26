@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from logging.config import fileConfig
 
 from alembic import context

@@ -1,3 +1,4 @@
+# news blueprint
 import flask
 
 news_blueprint = flask.Blueprint(

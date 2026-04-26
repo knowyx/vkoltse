@@ -1,3 +1,4 @@
+# This module contains api resources for working with users
 from data import db_session
 from data.db_session import create_session
 from data.users import Users
@@ -12,7 +13,9 @@ def abort_if_user_not_found(user_id):  # function for checking if user exists
         abort(404, message=f"User {user_id} not found")
 
 
-parser = reqparse.RequestParser()  # parser for parsing request data for creating and updating users
+parser = (
+    reqparse.RequestParser()
+)  # parser for parsing request data for creating and updating users
 parser.add_argument("permissions", required=True, type=str)
 parser.add_argument("email", required=True, type=str)
 parser.add_argument("login", required=True, type=str)
@@ -66,7 +69,8 @@ class UserListResource(
         return jsonify(
             {
                 "users": [
-                    item.to_dict(only=("id", "permissions", "email", "login")) for item in users
+                    item.to_dict(only=("id", "permissions", "email", "login"))
+                    for item in users
                 ]
             }
         )
@@ -79,7 +83,9 @@ class UserListResource(
         if session.query(Users).filter_by(login=args["login"]).first():
             return jsonify({"error": "Login already exists"}), 400
 
-        user = Users(permissions=args["permissions"], email=args["email"], login=args["login"])
+        user = Users(
+            permissions=args["permissions"], email=args["email"], login=args["login"]
+        )
         user.set_password(args["password"])
         session.add(user)
         session.commit()

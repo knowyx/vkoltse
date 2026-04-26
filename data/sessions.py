@@ -1,3 +1,4 @@
+# Model with base
 from data.db_session import SqlAlchemyBase
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, orm
 from sqlalchemy_serializer import SerializerMixin

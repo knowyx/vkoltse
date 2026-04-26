@@ -41,7 +41,9 @@ def err403(msg):
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
-    return render_template("403.html", pagename="403. Forbidden", user=user, msg=msg.description)
+    return render_template(
+        "403.html", pagename="403. Forbidden", user=user, msg=msg.description
+    )
 
 
 @app.errorhandler(
@@ -51,7 +53,9 @@ def err404(junk):
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
-    return render_template("404.html", pagename="404. Not Found", addr=request.url, user=user)
+    return render_template(
+        "404.html", pagename="404. Not Found", addr=request.url, user=user
+    )
 
 
 @app.route("/media/user_upload/<path:filename>")

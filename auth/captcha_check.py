@@ -1,3 +1,4 @@
+# This module contains functions for checking captcha, it uses Yandex SmartCaptcha service for this purpose, it sends a request to the service with the token received from the client and the client's IP address, and checks the response from the service to determine if the captcha is valid or not
 import json
 import sys
 

@@ -1,3 +1,4 @@
+# forms for news module
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField, FileSize
 from wtforms import StringField, SubmitField, TextAreaField, ValidationError

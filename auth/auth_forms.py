@@ -1,3 +1,4 @@
+# This module contains forms for authentication, it includes forms for registration, login, password reset and email confirmation, it also includes custom validators for these forms
 from re import escape, fullmatch
 
 from auth.handler import (
@@ -58,11 +59,15 @@ class RegisterForm(FlaskForm):
 
     def validate_email(self, field):
         if email_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с почтой "{field.data}" уже зарегестрирован!')
+            raise ValidationError(
+                f'Пользователь с почтой "{field.data}" уже зарегестрирован!'
+            )
 
     def validate_username(self, field):
         if username_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с именем "{field.data}" уже зарегестрирован!')
+            raise ValidationError(
+                f'Пользователь с именем "{field.data}" уже зарегестрирован!'
+            )
 
 
 class LoginForm(FlaskForm):
@@ -81,9 +86,13 @@ class ForgotForm(FlaskForm):
 
     def validate_email(self, field):
         if not email_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
+            raise ValidationError(
+                f'Пользователь с почтой "{field.data}" не зарегестрирован.'
+            )
 
-        if have_tokens_in_interval_email(self.session, field.data, Users, EmailTokens, typ=0):
+        if have_tokens_in_interval_email(
+            self.session, field.data, Users, EmailTokens, typ=0
+        ):
             raise ValidationError(
                 "Предыдущий запрос на сброс пароля был отправлен менее, чем 10 минут назад. "
                 + "Проверьте электронную почту."
@@ -117,7 +126,9 @@ class ConfirmMailForm(FlaskForm):
     submit = SubmitField("Продолжить")
 
     def validate_submit(self, field):
-        if have_tokens_in_interval_email(self.session, self.email, Users, EmailTokens, typ=1):
+        if have_tokens_in_interval_email(
+            self.session, self.email, Users, EmailTokens, typ=1
+        ):
             raise ValidationError(
                 "Предыдущий запрос на подтверждение аккаунта был отправлен менее, чем 10 минут назад. "
                 + "Проверьте электронную почту."

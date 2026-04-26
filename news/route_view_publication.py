@@ -1,3 +1,4 @@
+# route for viewing news publication
 from auth.handler import auth_user_view
 from data import db_session as db_sess
 from data.news import News
@@ -17,8 +18,9 @@ def view_publication(news_num):
         db_session = db_sess.create_session()
         news = db_session.query(News).filter(News.id == news_num).first()
         if news:
-            return render_template("publication.html", news=news, pagename=news.title, user=user)
-        else:
-            return redirect("/news")
+            return render_template(
+                "publication.html", news=news, pagename=news.title, user=user
+            )
+        return redirect("/news")
     finally:
         db_session.close()
