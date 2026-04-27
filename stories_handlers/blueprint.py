@@ -1,4 +1,5 @@
-# Blueprint for stories handlers
+"""This module contains Blueprint for stories handlers"""
+
 import flask
 
 story_blueprint = flask.Blueprint(

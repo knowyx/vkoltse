@@ -1,11 +1,15 @@
-# Model with base
+"""Model with base for store stories, review authors and other data for
+displaying and writing stories"""
+
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, orm
 from sqlalchemy_serializer import SerializerMixin
 
 from data.db_session import SqlAlchemyBase
 
 
-class Stories(SqlAlchemyBase, SerializerMixin):  # database for stories
+class Stories(SqlAlchemyBase, SerializerMixin):
+    """Class with stories model"""
+
     __tablename__ = "stories"
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)

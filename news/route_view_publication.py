@@ -1,4 +1,5 @@
-# route for viewing news publication
+"""This module contains route for viewing news publication"""
+
 from flask import redirect, render_template
 
 from auth.handler import auth_user_view
@@ -12,6 +13,7 @@ from .blueprint import news_blueprint
 
 @news_blueprint.route("/news/<news_num>")
 def view_publication(news_num):
+    """This function get all publications and render it"""
     user = auth_user_view(db_sess, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")

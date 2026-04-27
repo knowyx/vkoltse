@@ -1,4 +1,5 @@
-# route for adding news
+"""This module contains route for adding news"""
+
 import os
 from secrets import token_urlsafe
 
@@ -20,6 +21,7 @@ BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 @news_blueprint.route("/news/add", methods=["GET", "POST"])
 def add_news():
+    """This function contains a form for adding news"""
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
@@ -35,7 +37,7 @@ def add_news():
         except AttributeError:
             filename = None
         save_news(
-            db_session, News, form.title.data, form.content.data, filename, Sessions
+            db_session, News, (form.title.data, form.content.data, filename), Sessions
         )
         return redirect("/cabinet/admin?news-success=1")
     return render_template(

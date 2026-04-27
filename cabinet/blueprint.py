@@ -1,3 +1,5 @@
+"""This module initializes cabinet blueprint"""
+
 import flask
 
 cabinet_blueprint = flask.Blueprint(
