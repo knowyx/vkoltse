@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 # route for viewing news publication
 from flask import redirect, render_template
 

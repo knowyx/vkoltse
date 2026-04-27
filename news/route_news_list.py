@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 # route for news list
 from flask import redirect, render_template
 

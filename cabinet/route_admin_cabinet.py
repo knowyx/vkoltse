@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 """This module contains a functions, what render template of admin
 cabinet with data from database"""
 
