@@ -1,24 +1,15 @@
 # This module contains forms for authentication, it includes forms for registration, login, password reset and email confirmation, it also includes custom validators for these forms
 from re import escape, fullmatch
 
-from auth.handler import (
-    check_email_code,
-    email_exist,
-    have_tokens_in_interval_email,
-    username_exist,
-)
+from flask_wtf import FlaskForm
+from wtforms import (EmailField, IntegerField, PasswordField, StringField,
+                     SubmitField, ValidationError)
+from wtforms.validators import DataRequired
+
+from auth.handler import (check_email_code, email_exist,
+                          have_tokens_in_interval_email, username_exist)
 from data.email_tokens import EmailTokens
 from data.users import Users
-from flask_wtf import FlaskForm
-from wtforms import (
-    EmailField,
-    IntegerField,
-    PasswordField,
-    StringField,
-    SubmitField,
-    ValidationError,
-)
-from wtforms.validators import DataRequired
 
 
 def validate_password_match(form, field):

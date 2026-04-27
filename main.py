@@ -1,13 +1,15 @@
 # this is the main file which initializes the app, sets up routes and error handlers, and runs the app
 import os
 
+from flask import (Flask, redirect, render_template, request,
+                   send_from_directory)
+
 from api.__init__api import init_api
 from auth import __init__auth
 from auth.handler import auth_user_view
 from data import db_session
 from data.sessions import Sessions
 from data.users import Users
-from flask import Flask, redirect, render_template, request, send_from_directory
 from stories_handlers.blueprint import story_blueprint
 
 app = Flask(__name__, template_folder="html", static_folder="static")

@@ -1,12 +1,13 @@
 # route for submitting stories
 from datetime import datetime
 
+from flask import abort, redirect, render_template, request
+
 from auth.handler import auth_user_view
 from data import db_session
 from data.sessions import Sessions
 from data.stories import Stories
 from data.users import Users
-from flask import abort, redirect, render_template, request
 
 from .blueprint import story_blueprint
 from .forms import StorySubmitForm

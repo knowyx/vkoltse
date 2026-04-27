@@ -1,30 +1,18 @@
 # This module contains authentication blueprint for the application, it provides routes for login, registration, password reset and email confirmation, it also contains forms for these actions and functions for handling authentication logic
-from auth.auth_forms import (
-    ConfirmMailForm,
-    ForgotForm,
-    LoginForm,
-    RegisterForm,
-    SetupPasswordForm,
-)
+from flask import Blueprint, make_response, redirect, render_template, request
+
+from auth.auth_forms import (ConfirmMailForm, ForgotForm, LoginForm,
+                             RegisterForm, SetupPasswordForm)
 from auth.captcha_check import check_captcha
-from auth.handler import (
-    auth_user_view,
-    check_cookie_exist,
-    confirm_user,
-    create_auth_session,
-    create_confirm_key,
-    create_resetpass_key,
-    get_token_data,
-    get_user_info_by_session,
-    login_user,
-    register_user,
-    update_password,
-)
+from auth.handler import (auth_user_view, check_cookie_exist, confirm_user,
+                          create_auth_session, create_confirm_key,
+                          create_resetpass_key, get_token_data,
+                          get_user_info_by_session, login_user, register_user,
+                          update_password)
 from data import db_session
 from data.email_tokens import EmailTokens
 from data.sessions import Sessions
 from data.users import Users
-from flask import Blueprint, make_response, redirect, render_template, request
 
 blueprint = Blueprint("auth", __name__, template_folder="html/auth")
 

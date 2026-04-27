@@ -1,7 +1,9 @@
 # Model with base
-from data.db_session import SqlAlchemyBase
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, orm
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+                        Text, orm)
 from sqlalchemy_serializer import SerializerMixin
+
+from data.db_session import SqlAlchemyBase
 
 
 class Stories(SqlAlchemyBase, SerializerMixin):  # database for stories

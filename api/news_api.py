@@ -1,11 +1,12 @@
 # This module contains api resources for working with news
 from datetime import datetime
 
+from flask import jsonify
+from flask_restful import Resource, abort, reqparse
+
 from data import db_session
 from data.db_session import create_session
 from data.news import News
-from flask import jsonify
-from flask_restful import Resource, abort, reqparse
 
 
 def abort_if_news_not_found(news_id):  # function for checking if news exists

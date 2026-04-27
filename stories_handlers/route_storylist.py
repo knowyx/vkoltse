@@ -1,11 +1,12 @@
 # route for showing stories list
+from flask import redirect, render_template, request
+from sqlalchemy.orm import joinedload
+
 from auth.handler import auth_user_view
 from data import db_session
 from data.sessions import Sessions
 from data.stories import Stories
 from data.users import Users
-from flask import redirect, render_template, request
-from sqlalchemy.orm import joinedload
 
 from .blueprint import story_blueprint
 

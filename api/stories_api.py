@@ -1,10 +1,11 @@
 # Thise module contains api resources for working with stories
 from datetime import datetime
 
-from data.db_session import create_session
-from data.stories import Stories
 from flask import jsonify
 from flask_restful import Resource, abort, reqparse
+
+from data.db_session import create_session
+from data.stories import Stories
 
 
 def str_to_datetime(

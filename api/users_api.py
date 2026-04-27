@@ -1,9 +1,10 @@
 # This module contains api resources for working with users
+from flask import jsonify
+from flask_restful import Resource, abort, reqparse
+
 from data import db_session
 from data.db_session import create_session
 from data.users import Users
-from flask import jsonify
-from flask_restful import Resource, abort, reqparse
 
 
 def abort_if_user_not_found(user_id):  # function for checking if user exists

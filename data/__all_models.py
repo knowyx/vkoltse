@@ -1,9 +1,5 @@
 """Models for the database."""
 
-from data import users
-from data import news
-from data import sessions
-from data import stories
-from data import email_tokens
+from data import email_tokens, news, sessions, stories, users
 
 __all__ = ["users", "news", "sessions", "stories", "email_tokens"]

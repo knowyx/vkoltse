@@ -1,9 +1,10 @@
 # Model with base
-from data.db_session import SqlAlchemyBase
 from flask_login import UserMixin
 from sqlalchemy import Boolean, Column, Integer, String, orm
 from sqlalchemy_serializer import SerializerMixin
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from data.db_session import SqlAlchemyBase
 
 
 class Users(SqlAlchemyBase, UserMixin, SerializerMixin):  # database for users

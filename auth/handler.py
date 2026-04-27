@@ -3,8 +3,9 @@ import os
 from datetime import datetime, timedelta
 from secrets import SystemRandom, token_urlsafe
 
-from auth.email_sender import sent_confirm_mail, sent_resetpass_mail
 from flask import request
+
+from auth.email_sender import sent_confirm_mail, sent_resetpass_mail
 
 BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 

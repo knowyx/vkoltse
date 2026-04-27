@@ -1,10 +1,11 @@
 # route for viewing news publication
+from flask import redirect, render_template
+
 from auth.handler import auth_user_view
 from data import db_session as db_sess
 from data.news import News
 from data.sessions import Sessions
 from data.users import Users
-from flask import redirect, render_template
 
 from .blueprint import news_blueprint
 
