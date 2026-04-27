@@ -4,11 +4,15 @@ from sqlalchemy.orm import joinedload
 
 def check_admin_status(db_session, Users, Sessions):
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-    if cookie_data == None:
+    if cookie_data is None:
         return False
     with db_session.create_session() as db_session:
-        session = db_session.query(Sessions).filter(Sessions.session_key == cookie_data).first()
-        if session == None:
+        session = (
+            db_session.query(Sessions)
+            .filter(Sessions.session_key == cookie_data)
+            .first()
+        )
+        if session is None:
             return False
         user = db_session.query(Users).filter(Users.id == session.user_id).first()
         print(user.permissions)
@@ -28,14 +32,22 @@ def get_stories(db_session, Stories):
 
 def confirm_story(db_session, id, Stories, Sessions):
     with db_session.create_session() as db_session:
-        story = db_session.query(Stories).filter(Stories.id == id, Stories.checked == 0).first()
-        if story == None:
+        story = (
+            db_session.query(Stories)
+            .filter(Stories.id == id, Stories.checked == 0)
+            .first()
+        )
+        if story is None:
             return False
         cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-        if cookie_data == None:
+        if cookie_data is None:
             return False
-        session = db_session.query(Sessions).filter(Sessions.session_key == cookie_data).first()
-        if session == None:
+        session = (
+            db_session.query(Sessions)
+            .filter(Sessions.session_key == cookie_data)
+            .first()
+        )
+        if session is None:
             return False
         story.checked = 1
         story.review_authors_id = session.user_id
@@ -45,9 +57,15 @@ def confirm_story(db_session, id, Stories, Sessions):
 
 def remove_story(db_session, id, Stories):
     with db_session.create_session() as db_session:
-        story = db_session.query(Stories).filter(Stories.id == id, Stories.checked == 0).first()
-        if story == None:
+        story = (
+            db_session.query(Stories)
+            .filter(Stories.id == id, Stories.checked == 0)
+            .first()
+        )
+        if story is None:
             return False
-        db_session.query(Stories).filter(Stories.id == id, Stories.checked == 0).delete()
+        db_session.query(Stories).filter(
+            Stories.id == id, Stories.checked == 0
+        ).delete()
         db_session.commit()
     return True

@@ -21,12 +21,12 @@
     История с id "{{ id }}" уже подтверждена или не найдена в базе.
 </div>
 {% endif %}
-{% if success == "1" and err == None %}
+{% if success == "1" and err is None %}
 <div class="alert alert-success" role="alert">
     Успешное подтверждение истории с id "{{ id }}"!
 </div>
 {% endif %}
-{% if success == "-1" and err == None %}
+{% if success == "-1" and err is None %}
 <div class="alert alert-success" role="alert">
     История с id "{{ id }}" успешно отклонена.
 </div>

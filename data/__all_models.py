@@ -1,1 +1,5 @@
-# This file is used to import all models in package
+"""Models for the database."""
+
+from data import email_tokens, news, sessions, stories, users
+
+__all__ = ["users", "news", "sessions", "stories", "email_tokens"]

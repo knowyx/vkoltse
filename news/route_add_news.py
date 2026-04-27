@@ -1,13 +1,15 @@
+# route for adding news
 import os
 from secrets import token_urlsafe
+
+from flask import abort, redirect, render_template
+from werkzeug.utils import secure_filename
 
 from auth.handler import auth_user_view
 from data import db_session
 from data.news import News
 from data.sessions import Sessions
 from data.users import Users
-from flask import abort, redirect, render_template
-from werkzeug.utils import secure_filename
 
 from .blueprint import news_blueprint
 from .forms import NewsSubmitForm
@@ -32,7 +34,10 @@ def add_news():
             file.save(os.path.join(BASE_DIR, "media/user_upload", filename))
         except AttributeError:
             filename = None
-        save_news(db_session, News, form.title.data, form.content.data, filename, Sessions)
+        save_news(
+            db_session, News, form.title.data, form.content.data, filename, Sessions
+        )
         return redirect("/cabinet/admin?news-success=1")
-    else:
-        return render_template("add_news.html", pagename="Отправка новости", user=user, form=form)
+    return render_template(
+        "add_news.html", pagename="Отправка новости", user=user, form=form
+    )

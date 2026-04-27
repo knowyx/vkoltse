@@ -1,3 +1,4 @@
+# This module contains functions for sending emails, it includes functions for sending password reset emails and email confirmation emails, it uses the smtplib library to send emails through an SMTP server, it also uses the email.mime library to create email messages with HTML content
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -30,7 +31,9 @@ def sent_resetpass_mail(reciver, code):
     message["To"] = reciver
     message["Subject"] = "Восстановление пароля | Образование в кольце"
 
-    with open(os.path.join(BASE_URL, "reset-password.html"), mode="rt", encoding="UTF-8") as f:
+    with open(
+        os.path.join(BASE_URL, "reset-password.html"), mode="rt", encoding="UTF-8"
+    ) as f:
         text = f.read()
     text = text.format(code=code, img_path=url_for("static", filename="img/logo.svg"))
     message.attach(MIMEText(text, "html"))
@@ -48,7 +51,9 @@ def sent_confirm_mail(reciver, url_key, host):
     message["Subject"] = "Подтверждение аккаунта | Образование в кольце"
 
     url = f"{host}auth/confirm-mail/confirm?key={url_key}"
-    with open(os.path.join(BASE_URL, "confirm_mail.html"), mode="rt", encoding="UTF-8") as f:
+    with open(
+        os.path.join(BASE_URL, "confirm_mail.html"), mode="rt", encoding="UTF-8"
+    ) as f:
         text = f.read()
     text = text.format(link=url, img_path=url_for("static", filename="img/logo.svg"))
     message.attach(MIMEText(text, "html"))

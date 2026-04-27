@@ -1,13 +1,6 @@
+# This module contains forms for authentication, it includes forms for registration, login, password reset and email confirmation, it also includes custom validators for these forms
 from re import escape, fullmatch
 
-from auth.handler import (
-    check_email_code,
-    email_exist,
-    have_tokens_in_interval_email,
-    username_exist,
-)
-from data.email_tokens import EmailTokens
-from data.users import Users
 from flask_wtf import FlaskForm
 from wtforms import (
     EmailField,
@@ -18,6 +11,15 @@ from wtforms import (
     ValidationError,
 )
 from wtforms.validators import DataRequired
+
+from auth.handler import (
+    check_email_code,
+    email_exist,
+    have_tokens_in_interval_email,
+    username_exist,
+)
+from data.email_tokens import EmailTokens
+from data.users import Users
 
 
 def validate_password_match(form, field):
@@ -58,11 +60,15 @@ class RegisterForm(FlaskForm):
 
     def validate_email(self, field):
         if email_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с почтой "{field.data}" уже зарегестрирован!')
+            raise ValidationError(
+                f'Пользователь с почтой "{field.data}" уже зарегестрирован!'
+            )
 
     def validate_username(self, field):
         if username_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с именем "{field.data}" уже зарегестрирован!')
+            raise ValidationError(
+                f'Пользователь с именем "{field.data}" уже зарегестрирован!'
+            )
 
 
 class LoginForm(FlaskForm):
@@ -81,9 +87,13 @@ class ForgotForm(FlaskForm):
 
     def validate_email(self, field):
         if not email_exist(field.data, self.session, Users):
-            raise ValidationError(f'Пользователь с почтой "{field.data}" не зарегестрирован.')
+            raise ValidationError(
+                f'Пользователь с почтой "{field.data}" не зарегестрирован.'
+            )
 
-        if have_tokens_in_interval_email(self.session, field.data, Users, EmailTokens, typ=0):
+        if have_tokens_in_interval_email(
+            self.session, field.data, Users, EmailTokens, typ=0
+        ):
             raise ValidationError(
                 "Предыдущий запрос на сброс пароля был отправлен менее, чем 10 минут назад. "
                 + "Проверьте электронную почту."
@@ -117,7 +127,9 @@ class ConfirmMailForm(FlaskForm):
     submit = SubmitField("Продолжить")
 
     def validate_submit(self, field):
-        if have_tokens_in_interval_email(self.session, self.email, Users, EmailTokens, typ=1):
+        if have_tokens_in_interval_email(
+            self.session, self.email, Users, EmailTokens, typ=1
+        ):
             raise ValidationError(
                 "Предыдущий запрос на подтверждение аккаунта был отправлен менее, чем 10 минут назад. "
                 + "Проверьте электронную почту."
