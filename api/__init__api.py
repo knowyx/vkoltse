@@ -1,5 +1,6 @@
-"""This file initializes the API for the application, defining the endpoints and their 
+"""This file initializes the API for the application, defining the endpoints and their
 corresponding resources."""
+
 from flask_restful import Api
 
 from api.news_api import NewsListResource, NewsResource

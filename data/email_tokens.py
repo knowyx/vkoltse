@@ -1,6 +1,5 @@
 # Model with base
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
-                        orm)
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, orm
 from sqlalchemy_serializer import SerializerMixin
 
 from data.db_session import SqlAlchemyBase

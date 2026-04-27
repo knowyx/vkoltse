@@ -2,12 +2,22 @@
 from re import escape, fullmatch
 
 from flask_wtf import FlaskForm
-from wtforms import (EmailField, IntegerField, PasswordField, StringField,
-                     SubmitField, ValidationError)
+from wtforms import (
+    EmailField,
+    IntegerField,
+    PasswordField,
+    StringField,
+    SubmitField,
+    ValidationError,
+)
 from wtforms.validators import DataRequired
 
-from auth.handler import (check_email_code, email_exist,
-                          have_tokens_in_interval_email, username_exist)
+from auth.handler import (
+    check_email_code,
+    email_exist,
+    have_tokens_in_interval_email,
+    username_exist,
+)
 from data.email_tokens import EmailTokens
 from data.users import Users
 

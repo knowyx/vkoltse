@@ -1,4 +1,5 @@
 """Thise module contains api resources for working with stories"""
+
 from datetime import datetime
 
 from flask import jsonify
@@ -10,7 +11,7 @@ from data.stories import Stories
 
 def str_to_datetime(
     value,
-):  
+):
     """function for parsing date from string, expected format: YYYY-MM-DDTHH:MM:SS"""
     try:
         return datetime.fromisoformat(value)
@@ -18,7 +19,7 @@ def str_to_datetime(
         raise ValueError("Неверный формат даты, ожидается YYYY-MM-DDTHH:MM:SS") from exc
 
 
-def abort_if_not_exist(story_id):  
+def abort_if_not_exist(story_id):
     """function for checking if story exists"""
     session = create_session()
     story = session.get(Stories, story_id)
@@ -37,13 +38,12 @@ parser.add_argument("date", required=True, type=str_to_datetime)
 parser.add_argument("checked", required=True, type=int)
 
 
-class StoriesResource(
-    Resource
-):  
+class StoriesResource(Resource):
     """resource for working with stories, supports GET, DELETE and PUT methods"""
+
     def get(self, story_id):
         """returns story with the specified id, represented as a dictionary with id,
-        content, title, author_id, review_authors_id, date and checked information, 
+        content, title, author_id, review_authors_id, date and checked information,
         if story with the specified id does not exist, returns 404 error"""
         abort_if_not_exist(story_id)
         session = create_session()
@@ -52,9 +52,9 @@ class StoriesResource(
         return jsonify({"story": data})
 
     def put(self, story_id):
-        """updates story with the specified id in the database, expects content, 
-        title, author_id, review_authors_id, date and checked in the request data, 
-        if story with the specified id does not exist, returns 404 error, otherwise 
+        """updates story with the specified id in the database, expects content,
+        title, author_id, review_authors_id, date and checked in the request data,
+        if story with the specified id does not exist, returns 404 error, otherwise
         returns success message"""
         abort_if_not_exist(story_id)
         session = create_session()
@@ -72,8 +72,8 @@ class StoriesResource(
         return jsonify({"story": "Ok"})
 
     def delete(self, story_id):
-        """deletes story with the specified id from the database, if story with 
-        the specified id does not exist, returns 404 error, otherwise returns 
+        """deletes story with the specified id from the database, if story with
+        the specified id does not exist, returns 404 error, otherwise returns
         success message"""
         abort_if_not_exist(story_id)
         session = create_session()
@@ -84,21 +84,20 @@ class StoriesResource(
         return jsonify({"success": "Ok"})
 
 
-class StoriesListResource(
-    Resource
-):  
+class StoriesListResource(Resource):
     """resource for working with stories list, supports GET and POST methods"""
+
     def get(self):
-        """returns a list of all stories in the database, each story is represented 
-        as a dictionary with id, content, title, author_id, review_authors_id, date 
+        """returns a list of all stories in the database, each story is represented
+        as a dictionary with id, content, title, author_id, review_authors_id, date
         and checked information"""
         session = create_session()
         stories = session.query(Stories).all()
         return jsonify({"stories": [s.to_dict() for s in stories]})
 
     def post(self):
-        """creates a new story in the database, expects content, title, author_id, 
-        review_authors_id, date and checked in the request data, returns the id 
+        """creates a new story in the database, expects content, title, author_id,
+        review_authors_id, date and checked in the request data, returns the id
         of the created story"""
         args = parser.parse_args()
         session = create_session()

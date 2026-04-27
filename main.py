@@ -1,8 +1,7 @@
 # this is the main file which initializes the app, sets up routes and error handlers, and runs the app
 import os
 
-from flask import (Flask, redirect, render_template, request,
-                   send_from_directory)
+from flask import Flask, redirect, render_template, request, send_from_directory
 
 from api.__init__api import init_api
 from auth import __init__auth
