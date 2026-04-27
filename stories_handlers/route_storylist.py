@@ -1,4 +1,5 @@
-# route for showing stories list
+"""This module contains  route for showing stories list"""
+
 from flask import redirect, render_template, request
 from sqlalchemy.orm import joinedload
 
@@ -11,8 +12,10 @@ from data.users import Users
 from .blueprint import story_blueprint
 
 
-@story_blueprint.route("/story")  # route for showing stories list, supports GET method
+@story_blueprint.route("/story")
 def show_stories():
+    """This function contains route for showing stories list,
+    supports GET method"""
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")

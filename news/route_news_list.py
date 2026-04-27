@@ -1,5 +1,5 @@
-# pylint: disable=R0801
-# route for news list
+"""This module contains route for news list"""
+
 from flask import redirect, render_template
 
 from auth.handler import auth_user_view
@@ -13,6 +13,7 @@ from .blueprint import news_blueprint
 
 @news_blueprint.route("/news")
 def news_list():
+    """This function get and render list of the news"""
     user = auth_user_view(db_sess, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")

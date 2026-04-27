@@ -21,4 +21,4 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint --ignored-modules=alembic.context $(git ls-files '*.py')
+        pylint --ignored-modules=alembic.context --disable=R0801 $(git ls-files '*.py')

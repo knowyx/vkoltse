@@ -1,4 +1,5 @@
-# news blueprint
+"""This module contains news blueprint"""
+
 import flask
 
 news_blueprint = flask.Blueprint(

@@ -1,4 +1,3 @@
-# pylint: disable=R0801
 """This module contains a function, what change status of story (accept/decline).
 This route don't have a gui. This route is only accessible only from admin cabinet"""
 
