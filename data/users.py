@@ -1,4 +1,6 @@
-# Model with base
+"""Model with base for store usernames, email and other data for
+authenticating users"""
+
 from flask_login import UserMixin
 from sqlalchemy import Boolean, Column, Integer, String, orm
 from sqlalchemy_serializer import SerializerMixin
@@ -7,7 +9,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from data.db_session import SqlAlchemyBase
 
 
-class Users(SqlAlchemyBase, UserMixin, SerializerMixin):  # database for users
+class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
+    """Class with users model"""
+
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, autoincrement=True)
     permissions = Column(String, nullable=False)
@@ -31,14 +35,18 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):  # database for users
     email_tokens = orm.relationship("EmailTokens", back_populates="user")
     serialize_rules = ("-password_hash",)
 
-    def set_password(self, password):  # function for hashing and setting password
+    def set_password(self, password):
+        """function for hashing and setting password"""
         self.password_hash = generate_password_hash(password)
 
-    def had_permission(self, permission):  # function for checking permissions
+    def had_permission(self, permission):
+        """function for checking permissions"""
         return permission == self.permissions
 
-    def check_password(self, password):  # function for checking password
+    def check_password(self, password):
+        """function for checking password"""
         return check_password_hash(self.password_hash, password)
 
-    def __repr__(self):  # for debugging purposes
+    def __repr__(self):
+        """for debugging purposes"""
         return f"<User>{self.id}-{self.login}, {self.permissions}"

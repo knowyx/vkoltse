@@ -1,12 +1,15 @@
-# Model with base
+"""Model with base for store email tokens, url tokens and other data for reset pass
+and confirm account"""
+
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, orm
 from sqlalchemy_serializer import SerializerMixin
 
 from data.db_session import SqlAlchemyBase
 
 
-# class for email suggestions tokens
 class EmailTokens(SqlAlchemyBase, SerializerMixin):
+    """Class with email tokens model"""
+
     __tablename__ = "email-tokens"
     id = Column(Integer, primary_key=True)
     email_key = Column(Integer, nullable=True, unique=True)
