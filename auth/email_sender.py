@@ -1,4 +1,8 @@
-# This module contains functions for sending emails, it includes functions for sending password reset emails and email confirmation emails, it uses the smtplib library to send emails through an SMTP server, it also uses the email.mime library to create email messages with HTML content
+"""This module contains functions for sending emails, it includes functions for
+sending password reset emails and email confirmation emails, it uses the smtplib
+library to send emails through an SMTP server, it also uses the email.mime
+library to create email messages with HTML content"""
+
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -13,16 +17,18 @@ BASE_URL = ".../html/email"  # <- put abs path here
 
 
 def sent_mail(sender_email, password, message):
+    """Function send email to an email address of recipient or print error"""
     try:
         with smtplib.SMTP_SSL(SERVER, PORT) as server:
             server.login(sender_email, password)
             server.send_message(message)
             print("Письмо успешно отправлено!")
-    except Exception as e:
+    except smtplib.SMTPException as e:
         print(f"Возникла ошибка: {e}")
 
 
 def sent_resetpass_mail(reciver, code):
+    """Function create email for reset password page with html code"""
     sender_email = ""
     password = ""
 
@@ -42,6 +48,7 @@ def sent_resetpass_mail(reciver, code):
 
 
 def sent_confirm_mail(reciver, url_key, host):
+    """Function create email for account confirm page with html code"""
     sender_email = ""
     password = ""
 

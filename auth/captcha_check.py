@@ -1,4 +1,8 @@
-# This module contains functions for checking captcha, it uses Yandex SmartCaptcha service for this purpose, it sends a request to the service with the token received from the client and the client's IP address, and checks the response from the service to determine if the captcha is valid or not
+"""This module contains functions for checking captcha, it uses Yandex SmartCaptcha
+service for this purpose, it sends a request to the service with the token received
+from the client and the client's IP address, and checks the response from the
+service to determine if the captcha is valid or not"""
+
 import json
 import sys
 
@@ -8,6 +12,9 @@ SMARTCAPTCHA_SERVER_KEY = ""
 
 
 def check_captcha(token, addr):
+    """Function takes token and server user id address, when send a http request
+    to a Yandex checking server with library requests (sharing a secret server
+    key to determine sender)"""
     resp = requests.post(
         "https://smartcaptcha.cloud.yandex.ru/validate",
         data={"secret": SMARTCAPTCHA_SERVER_KEY, "token": token, "ip": addr},

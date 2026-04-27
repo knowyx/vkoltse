@@ -1,4 +1,9 @@
-# This module contains functions for handling authentication logic, it includes functions for registering users, checking if a username or email already exists, creating and removing authentication sessions, logging in users, getting user information by session key, creating and checking email tokens for password reset and email confirmation, and confirming users by email token
+"""This module contains functions for handling authentication logic, it includes
+functions for registering users, checking if a username or email already exists,
+creating and removing authentication sessions, logging in users, getting user
+information by session key, creating and checking email tokens for password reset
+and email confirmation, and confirming users by email token"""
+
 import os
 from datetime import datetime, timedelta
 from secrets import SystemRandom, token_urlsafe
@@ -10,57 +15,70 @@ from auth.email_sender import sent_confirm_mail, sent_resetpass_mail
 BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
 
 
-def register_user(login, email, password, db_session, User):
-    with db_session.create_session() as db_session:
-        user = User()
+def register_user(login, email, password, db_session, user_class):
+    """Function to add user in database (open connection here), set up user creditionals"""
+    with db_session.create_session() as active_sess:
+        user = user_class()
         user.login = login
         user.email = email
         user.set_password(password)
         user.permissions = 0
-        db_session.add(user)
-        db_session.commit()
+        active_sess.add(user)
+        active_sess.commit()
 
 
-def email_exist(email, db_session, User):
-    with db_session.create_session() as db_session:
-        users = db_session.query(User).filter(User.email == email)
+def email_exist(email, db_session, user_class):
+    """Fuction to check email existing in database (open connection here). Returns false if
+    len of query list more then 0"""
+    with db_session.create_session() as active_sess:
+        users = active_sess.query(user_class).filter(user_class.email == email)
     if len(list(users)) > 0:
         return True
     return False
 
 
-def username_exist(username, db_session, User):
-    with db_session.create_session() as db_session:
-        users = db_session.query(User).filter(User.login == username)
+def username_exist(username, db_session, user_class):
+    """Fuction to check username existing in database (open connection here). Returns false if
+    len of query list more then 0"""
+    with db_session.create_session() as active_sess:
+        users = active_sess.query(user_class).filter(user_class.login == username)
     if len(list(users)) > 0:
         return True
     return False
 
 
-def remove_auth_sessions_email(email, db_session, Sessions, User):
-    with db_session.create_session() as db_session:
-        user = db_session.query(User).filter(User.email == email).first()
-        db_session.query(Sessions).filter(Sessions.user_id == user.id).delete()
-        db_session.commit()
+def remove_auth_sessions_email(email, db_session, session_class, user_class):
+    """Fuction to remove old session keys of this user (by email) in database
+    (open connection here)"""
+    with db_session.create_session() as active_sess:
+        user = active_sess.query(user_class).filter(user_class.email == email).first()
+        active_sess.query(session_class).filter(
+            session_class.user_id == user.id
+        ).delete()
+        active_sess.commit()
 
 
-def create_auth_session(email, db_session, Sessions, User):
-    remove_auth_sessions_email(email, db_session, Sessions, User)
-    with db_session.create_session() as db_session:
-        user = db_session.query(User).filter(User.email == email).first()
-        session = Sessions()
+def create_auth_session(email, db_session, session_class, user_class):
+    """Fuction to create session for this user (by email) in database
+    (open connection here)"""
+    remove_auth_sessions_email(email, db_session, session_class, user_class)
+    with db_session.create_session() as active_sess:
+        user = active_sess.query(user_class).filter(user_class.email == email).first()
+        session = session_class()
         session.user_id = user.id
         session.session_key = token_urlsafe(32)
         session.auth_date = datetime.now()
         session.user_agent = request.headers.get("User-Agent")
-        db_session.add(session)
-        db_session.commit()
+        active_sess.add(session)
+        active_sess.commit()
         return session.session_key
 
 
-def login_user(email, password, db_session, User):
-    with db_session.create_session() as db_session:
-        user = db_session.query(User).filter(User.email == email).first()
+def login_user(email, password, db_session, user_class):
+    """Function to authentificate user (compare password from database
+    with given) (open connection here)"""
+    with db_session.create_session() as active_sess:
+        user = active_sess.query(user_class).filter(user_class.email == email).first()
     check_pass = False
     try:
         check_pass = user.check_password(password)
@@ -71,7 +89,10 @@ def login_user(email, password, db_session, User):
     return False
 
 
-def auth_user_view(db_session, User, Sessions):
+def auth_user_view(db_session, user_class, session_class):
+    """Fuction to read session data from cookie, get user info or remove old session
+    from db and return signal for deleting cookie. Returns signal, login button or
+    dropout (if user logged in successfully) (open connection here)"""
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
     try:
         with open(
@@ -93,35 +114,39 @@ def auth_user_view(db_session, User, Sessions):
     if cookie_data is None:
         return base_button
 
-    with db_session.create_session() as db_session:
+    with db_session.create_session() as active_sess:
         try:
             session_data = (
-                db_session.query(Sessions)
-                .filter(Sessions.session_key == cookie_data)
+                active_sess.query(session_class)
+                .filter(session_class.session_key == cookie_data)
                 .first()
             )
             user = (
-                db_session.query(User).filter(User.id == session_data.user_id).first()
+                active_sess.query(user_class)
+                .filter(user_class.id == session_data.user_id)
+                .first()
             )
         except AttributeError:
             return base_button
 
         if datetime.now() > session_data.auth_date + timedelta(days=10):
-            db_session.query(Sessions).filter(
-                Sessions.session_key == cookie_data
+            active_sess.query(session_class).filter(
+                session_class.session_key == cookie_data
             ).delete()
-            db_session.commit()
+            active_sess.commit()
             return "Remove_cookie"
 
     if request.headers.get("User-Agent") != session_data.user_agent:
         return base_button
 
     if user.permissions:
-        admin_link = """<li><a class="dropdown-item" href="/cabinet/admin">Кабинет Администратора</a></li>"""
+        admin_link = """<li><a class="dropdown-item" href="/cabinet/admin">
+        Кабинет Администратора</a></li>"""
     else:
         admin_link = ""
     if not user.is_confirmed:
-        confirm_link = """<li><a class="dropdown-item" href="/auth/confirm-mail">Подтвердить аккаунт</a></li>"""
+        confirm_link = """<li><a class="dropdown-item" href="/auth/confirm-mail">
+        Подтвердить аккаунт</a></li>"""
     else:
         confirm_link = ""
     return dropout.format(
@@ -129,106 +154,153 @@ def auth_user_view(db_session, User, Sessions):
     )
 
 
-def have_tokens_in_interval_email(db_session, email, User, Tokens, typ):
-    with db_session.create_session() as db_session:
+def have_tokens_in_interval_email(
+    db_session, email, user_class, email_tokens_class, typ
+):
+    """Function to check existing a tokens in interval (10 mins) by email
+    (open connection here)"""
+    with db_session.create_session() as active_sess:
         user = (
-            db_session.query(User)
-            .filter(User.email == email and Tokens.type == typ)
+            active_sess.query(user_class)
+            .filter(user_class.email == email and email_tokens_class.type == typ)
             .first()
         )
-        token = db_session.query(Tokens).filter(Tokens.user_id == user.id).first()
+        token = (
+            active_sess.query(email_tokens_class)
+            .filter(email_tokens_class.user_id == user.id)
+            .first()
+        )
         try:
             if token.sent_date + timedelta(minutes=10) < datetime.now():
                 return False
-            else:
-                return True
+            return True
         except AttributeError:
             return False
 
 
-def get_token_data(db_session, url_key, User, Tokens):
-    with db_session.create_session() as db_session:
-        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
+def get_token_data(db_session, url_key, email_tokens_class):
+    """Function to get info about session tokens by url_key (from mail) (open connection here)"""
+    with db_session.create_session() as active_sess:
+        token = (
+            active_sess.query(email_tokens_class)
+            .filter(email_tokens_class.url_key == url_key)
+            .first()
+        )
         return token
 
 
-def create_resetpass_key(email, db_session, User, Tokens):
-    with db_session.create_session() as db_session:
+def create_resetpass_key(email, db_session, user_class, email_tokens_class):
+    """Function to create key for reset password, add it to database and sent mail with code
+    (open connection here)"""
+    with db_session.create_session() as active_sess:
         user = (
-            db_session.query(User)
-            .filter(User.email == email and Tokens.type == 0)
+            active_sess.query(user_class)
+            .filter(user_class.email == email and email_tokens_class.type == 0)
             .first()
         )
-        db_session.query(Tokens).filter(Tokens.user_id == user.id).delete()
-        email_token = Tokens()
+        active_sess.query(email_tokens_class).filter(
+            email_tokens_class.user_id == user.id
+        ).delete()
+        email_token = email_tokens_class()
         email_token.url_key = token_urlsafe(32)
         email_token.email_key = SystemRandom().randint(100000, 999999)
         email_token.user_id = user.id
         email_token.type = 0
         email_token.sent_date = datetime.now()
-        db_session.add(email_token)
-        db_session.commit()
+        active_sess.add(email_token)
+        active_sess.commit()
         sent_resetpass_mail(email, email_token.email_key)
         return email_token.url_key
 
 
-def get_user_info_by_session(db_session, session_key, Users, Sessions):
-    with db_session.create_session() as db_session:
+def get_user_info_by_session(db_session, session_key, user_class, session_class):
+    """Fuction to get user info by his session (grant what user and session exist)
+    (open connection here)"""
+    with db_session.create_session() as active_sess:
         session = (
-            db_session.query(Sessions)
-            .filter(Sessions.session_key == session_key)
+            active_sess.query(session_class)
+            .filter(session_class.session_key == session_key)
             .first()
         )
-        user = db_session.query(Users).filter(Users.id == session.user_id).first()
+        user = (
+            active_sess.query(user_class)
+            .filter(user_class.id == session.user_id)
+            .first()
+        )
     return user
 
 
-def create_confirm_key(user, db_session, Tokens):
-    with db_session.create_session() as db_session:
-        db_session.query(Tokens).filter(
-            Tokens.user_id == user.id and Tokens.type == 1
+def create_confirm_key(user, db_session, email_tokens_class):
+    """Fuction to create mail confirm key (link at email) (open connection here)"""
+    with db_session.create_session() as active_sess:
+        active_sess.query(email_tokens_class).filter(
+            email_tokens_class.user_id == user.id and email_tokens_class.type == 1
         ).delete()
-        email_token = Tokens()
+        email_token = email_tokens_class()
         email_token.url_key = token_urlsafe(32)
         email_token.user_id = user.id
         email_token.type = 1
         email_token.sent_date = datetime.now()
-        db_session.add(email_token)
-        db_session.commit()
+        active_sess.add(email_token)
+        active_sess.commit()
         sent_confirm_mail(user.email, email_token.url_key, request.host_url)
 
 
-def check_email_code(db_session, code, url_key, Tokens):
-    with db_session.create_session() as db_session:
-        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
+def check_email_code(db_session, code, url_key, email_tokens_class):
+    """Fuction to validate code gived by user and code in databse (open connection here)"""
+    with db_session.create_session() as active_sess:
+        token = (
+            active_sess.query(email_tokens_class)
+            .filter(email_tokens_class.url_key == url_key)
+            .first()
+        )
         if token.email_key == code:
             return True
         return False
 
 
-def update_password(db_session, url_key, password, Tokens, User):
-    with db_session.create_session() as db_session:
-        token = db_session.query(Tokens).filter(Tokens.url_key == url_key).first()
-        user = db_session.query(User).filter(User.id == token.user_id).first()
+def update_password(db_session, url_key, password, email_tokens_class, user_class):
+    """Fuction to set up a new password for user by url key (open connection here)"""
+    with db_session.create_session() as active_sess:
+        token = (
+            active_sess.query(email_tokens_class)
+            .filter(email_tokens_class.url_key == url_key)
+            .first()
+        )
+        user = (
+            active_sess.query(user_class).filter(user_class.id == token.user_id).first()
+        )
         user.set_password(password)
-        db_session.query(Tokens).filter(Tokens.user_id == user.id).delete()
-        db_session.commit()
+        active_sess.query(email_tokens_class).filter(
+            email_tokens_class.user_id == user.id
+        ).delete()
+        active_sess.commit()
 
 
 def check_cookie_exist():
+    """Fuction to validate cookie existing"""
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-    if cookie_data != None:
+    if cookie_data is not None:
         return True
     return False
 
 
-def confirm_user(db_session, key, EmailTokens, Users):
-    with db_session.create_session() as db_session:
-        token = db_session.query(EmailTokens).filter(EmailTokens.url_key == key).first()
+def confirm_user(db_session, key, email_tokens_class, user_class):
+    """Fuction to change user status to "Confirmed by email" after getting confirmition code"""
+    with db_session.create_session() as active_sess:
+        token = (
+            active_sess.query(email_tokens_class)
+            .filter(email_tokens_class.url_key == key)
+            .first()
+        )
         if token is None:
             return False
-        user = db_session.query(Users).filter(Users.id == token.user_id).first()
+        user = (
+            active_sess.query(user_class).filter(user_class.id == token.user_id).first()
+        )
         user.is_confirmed = True
-        db_session.query(EmailTokens).filter(EmailTokens.url_key == key).delete()
-        db_session.commit()
+        active_sess.query(email_tokens_class).filter(
+            email_tokens_class.url_key == key
+        ).delete()
+        active_sess.commit()
         return True
