@@ -1,3 +1,6 @@
+"""This module contains a functions, what render template of admin
+cabinet with data from database"""
+
 from flask import abort, redirect, render_template, request
 
 from auth.handler import auth_user_view
@@ -7,17 +10,18 @@ from data.stories import Stories
 from data.users import Users
 
 from .blueprint import cabinet_blueprint
-from .hander import check_admin_status, get_stories
+from .hander import check_admin_status, get_unchecked_stories
 
 
 @cabinet_blueprint.route("/cabinet/admin", methods=["GET"])
 def admin_cabinet():
+    """This function render template of admin cabinet with data from database"""
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
     if not check_admin_status(db_session, Users, Sessions):
         abort(403, "Недостаточно прав для просмотра данного контента.")
-    stories = get_stories(db_session, Stories)
+    stories = get_unchecked_stories(db_session, Stories)
     return render_template(
         "admin_cabinet.html",
         pagename="Кабинет Администратора",
