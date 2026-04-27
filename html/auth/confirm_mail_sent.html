@@ -1,6 +1,7 @@
 {% extends "base.html"%}
 
 {% block content %}
+<script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
 <div class="divcenter">
     <h1>Для продолжения работы подтвердите почту!</h1>
     <p>Уважаемый(ая) {{username}}, для продолжения работы подтвердите свой аккаунт. Пройдите капчу, нажмите кнопку и мы отправим на Ваш адрес электронной почты письмо, содержащее ссылку для подтверждения. Для завершения процесса подтверждения перейдите по ней.</p>
@@ -10,7 +11,7 @@
     <div id="captcha-container" class="smart-captcha" data-sitekey="" style="height: 100px; margin-bottom: 20px"></div>
     {% if err == "captcha" %}
         <div class="alert alert-danger" role="alert">
-            Необходимо пройти капчу.
+            Капча не была пройдена или произошла ошибка при проверке.
         </div>
     {% endif %}
     <p><div class="divcenter" style="margin-bottom: 1%;">{{ form.submit(type="submit", class="btn btn-primary") }}</div>

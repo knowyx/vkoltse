@@ -13,7 +13,7 @@ from flask import url_for
 SERVER = "smtp.timeweb.ru"
 PORT = 465
 
-BASE_URL = ".../html/email"  # <- put abs path here
+BASE_URL = "/home/knowyx/proj/py/vkoltse3/vkoltse/html/email"  # <- put abs path here
 
 
 def sent_mail(sender_email, password, message):

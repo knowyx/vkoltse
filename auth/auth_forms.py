@@ -13,7 +13,6 @@ from wtforms import (
     SubmitField,
     ValidationError,
 )
-from wtforms.validators import DataRequired
 
 from auth.handler import (
     check_email_code,
@@ -91,8 +90,8 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     """WTForm. Form for user login, includes validators"""
 
-    email = EmailField("Электронная почта", validators=[DataRequired()])
-    password = PasswordField("Пароль", validators=[DataRequired()])
+    email = EmailField("Электронная почта", validators=[empty_field_rus])
+    password = PasswordField("Пароль", validators=[empty_field_rus])
     submit = SubmitField("Войти")
 
 
