@@ -1,6 +1,7 @@
 """This module contains authentication blueprint for the application, it provides routes
-for login, registration, password reset and email confirmation, it also contains forms 
+for login, registration, password reset and email confirmation, it also contains forms
 for these actions and functions for handling authentication logic"""
+
 from flask import Blueprint, make_response, redirect, render_template, request
 
 from auth.auth_forms import (
@@ -34,7 +35,7 @@ blueprint = Blueprint("auth", __name__, template_folder="html/auth")
 
 @blueprint.route("/auth")
 def auth_redir():
-    """if session cookie exists, redirects to index page, otherwise redirects 
+    """if session cookie exists, redirects to index page, otherwise redirects
     to login page"""
     if check_cookie_exist():
         return redirect("/")
@@ -43,9 +44,9 @@ def auth_redir():
 
 @blueprint.route("/auth/login", methods=["GET", "POST"])
 def login():
-    """if session cookie exists, redirects to index page, otherwise processes login 
-    form, if form is valid and captcha check is passed, creates auth session and 
-    sets session cookie, then redirects to index page, otherwise redirects back to 
+    """if session cookie exists, redirects to index page, otherwise processes login
+    form, if form is valid and captcha check is passed, creates auth session and
+    sets session cookie, then redirects to index page, otherwise redirects back to
     login page with error message"""
     if check_cookie_exist():
         return redirect("/")
@@ -78,10 +79,10 @@ def login():
 
 @blueprint.route("/auth/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-    """if session cookie exists, redirects to index page, otherwise processes 
-    forgot password form, if form is valid and captcha check is passed, creates 
-    reset password key and redirects to setup password page with the key in the 
-    query string, otherwise redirects back to forgot password page with error 
+    """if session cookie exists, redirects to index page, otherwise processes
+    forgot password form, if form is valid and captcha check is passed, creates
+    reset password key and redirects to setup password page with the key in the
+    query string, otherwise redirects back to forgot password page with error
     message"""
     if check_cookie_exist():
         return redirect("/")
@@ -103,9 +104,9 @@ def forgot_password():
 
 @blueprint.route("/auth/register", methods=["GET", "POST"])
 def register():
-    """if session cookie exists, redirects to index page, otherwise processes 
-    registration form, if form is valid and captcha check is passed, creates 
-    new user, creates auth session and sets session cookie, then redirects to 
+    """if session cookie exists, redirects to index page, otherwise processes
+    registration form, if form is valid and captcha check is passed, creates
+    new user, creates auth session and sets session cookie, then redirects to
     index page, otherwise redirects back to registration page with error message"""
     if check_cookie_exist():
         return redirect("/")
@@ -142,8 +143,8 @@ def register():
 
 @blueprint.route("/auth/logout")
 def logout():
-    """if session cookie exists, deletes auth session from the database 
-    and removes session cookie, then redirects to index page, otherwise 
+    """if session cookie exists, deletes auth session from the database
+    and removes session cookie, then redirects to index page, otherwise
     redirects to login page"""
     res = make_response("", 302)
     res.headers["Location"] = "/index"
@@ -153,19 +154,17 @@ def logout():
 
 @blueprint.route("/auth/forgot-password/setup", methods=["GET", "POST"])
 def setup_password():
-    """if session cookie exists, redirects to index page, otherwise 
-    processes setup password form, if form is valid and captcha check 
-    is passed, updates user's password and redirects to login page, 
+    """if session cookie exists, redirects to index page, otherwise
+    processes setup password form, if form is valid and captcha check
+    is passed, updates user's password and redirects to login page,
     otherwise redirects back to setup password page with error message"""
     if check_cookie_exist():
         return redirect("/")
     url_key = request.args.get("key", None)
-    token = get_token_data(db_session, url_key, Users, EmailTokens)
-    if (
-        not token
-    ):  
-        """если полученная в результате get_token_data структура 
-        пуста (т.е. выборка из базы пуста)"""
+    token = get_token_data(db_session, url_key, EmailTokens)
+    if not token:
+        # если полученная в результате get_token_data структура
+        # пуста (т.е. выборка из базы пуста)
         return redirect("/")
     form = SetupPasswordForm(session=db_session, url_key=url_key)
     if form.validate_on_submit():
@@ -183,19 +182,23 @@ def setup_password():
 
 @blueprint.route("/auth/confirm-mail", methods=["GET", "POST"])
 def confirm_mail_sent():
-    """if session cookie exists, redirects to index page, otherwise 
-    processes confirm mail form, if form is valid and captcha check is 
-    passed, creates confirm mail key and renders success page, otherwise 
+    """if session cookie exists, redirects to index page, otherwise
+    processes confirm mail form, if form is valid and captcha check is
+    passed, creates confirm mail key and renders success page, otherwise
     redirects back to confirm mail page with error message"""
-    redirect_paths = ["/", "/auth/logout", "/auth/confirm-mail?err=captcha"] 
+    redirect_paths = ["/", "/auth/logout", "/auth/confirm-mail?err=captcha"]
+    redir_to_main = False
     if not check_cookie_exist():
-        return redirect(redirect_paths[0])
-    try:
-        session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-        user = get_user_info_by_session(db_session, session_key, Users, Sessions)
-    except AttributeError:
-        return redirect(redirect_paths[0])
-    if user.is_confirmed:
+        redir_to_main = True
+    else:
+        try:
+            session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+            user = get_user_info_by_session(db_session, session_key, Users, Sessions)
+            if user.is_confirmed:
+                redir_to_main = True
+        except AttributeError:
+            redir_to_main = True
+    if redir_to_main:
         return redirect(redirect_paths[0])
     user_button = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
@@ -222,9 +225,9 @@ def confirm_mail_sent():
 
 @blueprint.route("/auth/confirm-mail/confirm")
 def confirm_mail_final():
-    """if session cookie exists, processes confirm mail key from query 
-    string, if key is valid, confirms user's email and renders success 
-    page, otherwise renders failure page, if session cookie does not 
+    """if session cookie exists, processes confirm mail key from query
+    string, if key is valid, confirms user's email and renders success
+    page, otherwise renders failure page, if session cookie does not
     exist or user is already confirmed, redirects to index page"""
     if not check_cookie_exist():
         return redirect("/")
