@@ -16,7 +16,7 @@ PORT = 465
 BASE_URL = "/home/knowyx/proj/py/vkoltse3/vkoltse/html/email"  # <- put abs path here
 
 
-def sent_mail(sender_email, password, message):
+def sent_mail(sender_email, password, message, endpoint):
     """Function send email to an email address of recipient or print error"""
     try:
         with smtplib.SMTP_SSL(SERVER, PORT) as server:
@@ -24,7 +24,7 @@ def sent_mail(sender_email, password, message):
             server.send_message(message)
             print("Письмо успешно отправлено!")
     except smtplib.SMTPException as e:
-        print(f"Возникла ошибка: {e}")
+        print(f"{endpoint} error! {e}")
 
 
 def sent_resetpass_mail(reciver, code):
@@ -41,10 +41,14 @@ def sent_resetpass_mail(reciver, code):
         os.path.join(BASE_URL, "reset-password.html"), mode="rt", encoding="UTF-8"
     ) as f:
         text = f.read()
-    text = text.format(code=code, img_path=url_for("static", filename="img/logo.svg"))
+    text = text.format(
+        code=code,
+        img_path=url_for("static", filename="img/logo1000.png", _external=True),
+    )
     message.attach(MIMEText(text, "html"))
 
-    sent_mail(sender_email, password, message)
+    endpoint = "/auth/forgot-password"
+    sent_mail(sender_email, password, message, endpoint)
 
 
 def sent_confirm_mail(reciver, url_key, host):
@@ -62,7 +66,11 @@ def sent_confirm_mail(reciver, url_key, host):
         os.path.join(BASE_URL, "confirm_mail.html"), mode="rt", encoding="UTF-8"
     ) as f:
         text = f.read()
-    text = text.format(link=url, img_path=url_for("static", filename="img/logo.svg"))
+    text = text.format(
+        link=url,
+        img_path=url_for("static", filename="img/logo1000.png", _external=True),
+    )
     message.attach(MIMEText(text, "html"))
 
-    sent_mail(sender_email, password, message)
+    endpoint = "/auth/confirm-mail"
+    sent_mail(sender_email, password, message, endpoint)
