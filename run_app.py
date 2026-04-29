@@ -1,24 +1,23 @@
-import sys
-import os
-import traceback
+"""This module used for lauching an application"""
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
+import os
+import sys
+
+BASE_DIR = "base_dir of project deploy"
 
 sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, os.path.join(BASE_DIR, "venv1/lib/python3.10/site-packages"))
+sys.path.insert(0, os.path.join(BASE_DIR, "venv1/lib/python3.14/site-packages"))
 
 print("WSGI START", file=sys.stderr)
 
 try:
-    from main import app
-
-    from data import db_session
     from api.__init__api import init_api
-
     from auth import __init__auth
-    from stories_handlers import blueprint as story_bp
     from cabinet import blueprint as cab_bp
+    from data import db_session
+    from main import app
     from news import blueprint as news_bp
+    from stories_handlers import blueprint as story_bp
 
     db_path = os.path.join(BASE_DIR, "db/data.db")
     print(f"DB PATH: {db_path}", file=sys.stderr)
@@ -32,13 +31,10 @@ try:
 
     init_api(app)
 
-    #from werkzeug.debug import DebuggedApplication #debug
-    #application = DebuggedApplication(app, evalex=True) #debug
     application = app
 
     print("WSGI READY", file=sys.stderr)
 
 except Exception:
     print("WSGI FAILED", file=sys.stderr)
-    #traceback.print_exc(file=sys.stderr) #debug
     raise

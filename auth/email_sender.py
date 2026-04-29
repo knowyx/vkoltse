@@ -5,72 +5,60 @@ library to create email messages with HTML content"""
 
 import os
 import smtplib
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from ssl import SSLError
 
-from flask import url_for
-
-SERVER = "smtp.timeweb.ru"
+SERVER = "put here your mail server"
 PORT = 465
 
-BASE_URL = "/home/knowyx/proj/py/vkoltse3/vkoltse/html/email"  # <- put abs path here
+BASE_URL = "base_dir of project deploy"
 
 
-def sent_mail(sender_email, password, message, endpoint):
+def sent_mail(sender_email, sender_pass, message):
     """Function send email to an email address of recipient or print error"""
     try:
         with smtplib.SMTP_SSL(SERVER, PORT) as server:
-            server.login(sender_email, password)
+            server.login(sender_email, sender_pass)
             server.send_message(message)
             print("Письмо успешно отправлено!")
-    except smtplib.SMTPException as e:
-        print(f"{endpoint} error! {e}")
+            return True
+    except (smtplib.SMTPException, OSError, SSLError):
+        return False
 
 
-def sent_resetpass_mail(reciver, code):
-    """Function create email for reset password page with html code"""
-    sender_email = ""
-    password = ""
+def build_mail(sender_email, subject, mail_content, reciver):
+    """Function to build mail structure with content"""
+    try:
+        message = MIMEMultipart("related")
+        message["From"] = sender_email
+        message["To"] = reciver
+        message["Subject"] = subject + " | Образование в кольце"
 
-    message = MIMEMultipart()
-    message["From"] = sender_email
-    message["To"] = reciver
-    message["Subject"] = "Восстановление пароля | Образование в кольце"
+        alt = MIMEMultipart("alternative")
+        message.attach(alt)
 
-    with open(
-        os.path.join(BASE_URL, "reset-password.html"), mode="rt", encoding="UTF-8"
-    ) as f:
-        text = f.read()
-    text = text.format(
-        code=code,
-        img_path=url_for("static", filename="img/logo1000.png", _external=True),
-    )
-    message.attach(MIMEText(text, "html"))
+        with open(
+            os.path.join(os.path.join(BASE_URL, "html/email"), "mail.html"),
+            mode="rt",
+            encoding="UTF-8",
+        ) as f:
+            text = f.read()
+        text = text.format(
+            custom_content=mail_content,
+        )
 
-    endpoint = "/auth/forgot-password"
-    sent_mail(sender_email, password, message, endpoint)
+        alt.attach(MIMEText("Текст письма", "plain"))
+        alt.attach(MIMEText(text, "html"))
 
+        with open(os.path.join(BASE_URL, "static/img/logo1000.png"), mode="rb") as f:
+            img = MIMEImage(f.read(), _subtype="png")
 
-def sent_confirm_mail(reciver, url_key, host):
-    """Function create email for account confirm page with html code"""
-    sender_email = ""
-    password = ""
+        img.add_header("Content-ID", "<image1>")
+        img.add_header("Content-Disposition", "inline", filename="logo.png")
 
-    message = MIMEMultipart()
-    message["From"] = sender_email
-    message["To"] = reciver
-    message["Subject"] = "Подтверждение аккаунта | Образование в кольце"
-
-    url = f"{host}auth/confirm-mail/confirm?key={url_key}"
-    with open(
-        os.path.join(BASE_URL, "confirm_mail.html"), mode="rt", encoding="UTF-8"
-    ) as f:
-        text = f.read()
-    text = text.format(
-        link=url,
-        img_path=url_for("static", filename="img/logo1000.png", _external=True),
-    )
-    message.attach(MIMEText(text, "html"))
-
-    endpoint = "/auth/confirm-mail"
-    sent_mail(sender_email, password, message, endpoint)
+        message.attach(img)
+        return message
+    except (OSError, TypeError, ValueError):
+        return None

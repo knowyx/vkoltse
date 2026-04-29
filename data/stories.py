@@ -1,7 +1,8 @@
 """Model with base for store stories, review authors and other data for
 displaying and writing stories"""
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, orm
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+                        Text, orm)
 from sqlalchemy_serializer import SerializerMixin
 
 from data.db_session import SqlAlchemyBase

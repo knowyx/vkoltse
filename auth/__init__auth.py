@@ -4,42 +4,20 @@ for these actions and functions for handling authentication logic"""
 
 from flask import Blueprint, make_response, redirect, render_template, request
 
-from auth.auth_forms import (
-    ConfirmMailForm,
-    ForgotForm,
-    LoginForm,
-    RegisterForm,
-    SetupPasswordForm,
-)
+from auth.auth_forms import (ConfirmMailForm, ForgotForm, LoginForm,
+                             RegisterForm, SetupPasswordForm)
 from auth.captcha_check import check_captcha
-from auth.handler import (
-    auth_user_view,
-    check_cookie_exist,
-    confirm_user,
-    create_auth_session,
-    create_confirm_key,
-    create_resetpass_key,
-    get_token_data,
-    get_user_info_by_session,
-    login_user,
-    register_user,
-    update_password,
-)
+from auth.handler import (auth_user_view, check_cookie_exist, confirm_user,
+                          create_auth_session, create_confirm_key,
+                          create_resetpass_key, get_token_data,
+                          get_user_info_by_session, login_user, register_user,
+                          update_password)
 from data import db_session
 from data.email_tokens import EmailTokens
 from data.sessions import Sessions
 from data.users import Users
 
 blueprint = Blueprint("auth", __name__, template_folder="html/auth")
-
-
-@blueprint.route("/auth")
-def auth_redir():
-    """if session cookie exists, redirects to index page, otherwise redirects
-    to login page"""
-    if check_cookie_exist():
-        return redirect("/")
-    return redirect("/auth/login")
 
 
 @blueprint.route("/auth/login", methods=["GET", "POST"])
@@ -92,8 +70,13 @@ def forgot_password():
             url_key = create_resetpass_key(
                 form.email.data, db_session, Users, EmailTokens
             )
-            return redirect(f"/auth/forgot-password/setup?key={url_key}")
-        return redirect("/auth/forgot-password?err=captcha")
+            if url_key == -1:
+                out_path = "/auth/forgot-password?err=build"
+            else:
+                out_path = f"/auth/forgot-password/setup?key={url_key}"
+        else:
+            out_path = "/auth/forgot-password?err=captcha"
+        return redirect(out_path)
     return render_template(
         "auth/forgot-password.html",
         pagename="Сброс пароля",
@@ -186,7 +169,12 @@ def confirm_mail_sent():
     processes confirm mail form, if form is valid and captcha check is
     passed, creates confirm mail key and renders success page, otherwise
     redirects back to confirm mail page with error message"""
-    redirect_paths = ["/", "/auth/logout", "/auth/confirm-mail?err=captcha"]
+    redirect_paths = [
+        "/",
+        "/auth/logout",
+        "/auth/confirm-mail?err=captcha",
+        "/auth/confirm-mail?err=build",
+    ]
     redir_to_main = False
     if not check_cookie_exist():
         redir_to_main = True
@@ -203,14 +191,18 @@ def confirm_mail_sent():
     user_button = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect(redirect_paths[1])
+
     form = ConfirmMailForm(session=db_session, email=user.email)
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
-            create_confirm_key(user, db_session, EmailTokens)
+            result = create_confirm_key(user, db_session, EmailTokens)
+            if result == -1:
+                return redirect(redirect_paths[3])
             return render_template(
                 "auth/confirm_mail_success_sent.html", pagename="Подтверждение аккаунта"
             )
         return redirect(redirect_paths[2])
+
     return render_template(
         "auth/confirm_mail_sent.html",
         pagename="Подтверждение аккаунта",

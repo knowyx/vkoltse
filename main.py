@@ -1,9 +1,7 @@
 """This is the main file which initializes the app, sets up routes and error handlers,
 and runs the app (without using a gunicorn (for develop purposes))"""
 
-import os
-
-from flask import Flask, redirect, render_template, request, send_from_directory
+from flask import Flask, redirect, render_template, request
 
 from api.__init__api import init_api
 from auth import __init__auth
@@ -17,7 +15,7 @@ app = Flask(__name__, template_folder="html", static_folder="static")
 app.config["SECRET_KEY"] = "vkoltse_dev"
 
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
+BASE_DIR = "base_dir of project deploy"
 
 
 @app.route("/")
@@ -62,16 +60,6 @@ def err404(_):
     return render_template(
         "404.html", pagename="404. Not Found", addr=request.url, user=user
     )
-
-
-@app.route("/media/user_upload/<path:filename>")
-def user_upload(
-    filename,
-):
-    """route for serving user uploaded files, supports GET method, returns
-    file from user_upload directory if session exists, otherwise redirects to logout"""
-    path = os.path.join(BASE_DIR, "media", "user_upload")
-    return send_from_directory(path, filename)
 
 
 def main():
