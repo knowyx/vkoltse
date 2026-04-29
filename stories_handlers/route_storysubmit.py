@@ -17,12 +17,14 @@ from .forms import StorySubmitForm
 @story_blueprint.route("/story/submit", methods=["GET", "POST"])
 def story_submit():
     """This func contains route for submitting stories, supports GET and POST methods"""
-    if not check_cookie_exist():  # if session cookie does not exist, return 403 error
-        return abort(403, "Для совершения этого действия необходимо авторизоваться.")
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
-
+    validate_user = check_user_exist_and_confirmed(Sessions, Users)
+    if validate_user == -1:  # 1 - вход не выполнен
+        return abort(403, "Для совершения этого действия необходимо авторизоваться.")
+    if validate_user == -2:  # 2 - пользователь не подтвержден
+        return redirect("/auth/confirm-mail")
     form = StorySubmitForm()
     print(form.errors)
     if form.validate_on_submit():
@@ -46,13 +48,6 @@ def story_submit():
     return render_template("story_submit.html", form=form, user=user)
 
 
-def check_cookie_exist():
-    """This function used for checking if session cookie exists, returns True if exists,
-    False otherwise"""
-    session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-    return bool(session_key)
-
-
 def get_user_id(
     db_sess,
 ):
@@ -66,3 +61,30 @@ def get_user_id(
             .first()
         )
     return session.user_id
+
+
+def check_user_exist_and_confirmed(session_class, user_class):
+    """This fuction used to determine users without authentication and unconfirmed
+    (by mail) users"""
+    cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+
+    if cookie_data is None:
+        return -1
+
+    with db_session.create_session() as active_sess:
+        try:
+            session_data = (
+                active_sess.query(session_class)
+                .filter(session_class.session_key == cookie_data)
+                .first()
+            )
+            user = (
+                active_sess.query(user_class)
+                .filter(user_class.id == session_data.user_id)
+                .first()
+            )
+            if not user.is_confirmed:
+                return -2
+        except AttributeError:
+            return -1
+    return 0

@@ -4,7 +4,7 @@ that file"""
 import os
 import runpy
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
+BASE_DIR = "base_dir of project deploy"
 
-module = runpy.run_path(os.path.join(BASE_DIR, "index.wsgi"))
+module = runpy.run_path(os.path.join(BASE_DIR, "run_app.py"))
 application = module["application"]

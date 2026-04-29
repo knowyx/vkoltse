@@ -8,6 +8,8 @@
 ```
 vkoltse.ru
 вкольце.рф
+www.vkoltse.ru
+www.вкольце.рф
 ```
 
 prod run:

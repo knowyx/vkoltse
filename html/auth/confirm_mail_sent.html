@@ -14,9 +14,9 @@
             Капча не была пройдена или произошла ошибка при проверке.
         </div>
     {% endif %}
-    {% if err == "mail" %}
+    {% if err == "build" %}
         <div class="alert alert-danger" role="alert">
-            Не удалось отправить письмо. Попробуйте позже.
+            Не удалось собрать письмо. Проверьте данные и обратитесь в поддержку.
         </div>
     {% endif %}
     <p><div class="divcenter" style="margin-bottom: 1%;">{{ form.submit(type="submit", class="btn btn-primary") }}</div>

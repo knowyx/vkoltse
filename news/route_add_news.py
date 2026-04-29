@@ -16,7 +16,7 @@ from .blueprint import news_blueprint
 from .forms import NewsSubmitForm
 from .handler import check_admin_status, save_news
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
+BASE_DIR = "base_dir of project deploy"
 
 
 @news_blueprint.route("/news/add", methods=["GET", "POST"])

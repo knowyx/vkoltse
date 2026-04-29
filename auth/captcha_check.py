@@ -8,7 +8,7 @@ import sys
 
 import requests
 
-SMARTCAPTCHA_SERVER_KEY = ""
+SMARTCAPTCHA_SERVER_KEY = "copy here server key of your captcha"
 
 
 def check_captcha(token, addr):

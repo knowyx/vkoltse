@@ -5,14 +5,19 @@ information by session key, creating and checking email tokens for password rese
 and email confirmation, and confirming users by email token"""
 
 import os
+import threading
 from datetime import datetime, timedelta
 from secrets import SystemRandom, token_urlsafe
 
 from flask import request
 
-from auth.email_sender import sent_confirm_mail, sent_resetpass_mail
+from auth.email_sender import build_mail, sent_mail
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse3/vkoltse"
+BASE_DIR = "base_dir of project deploy"
+MAILBOXES = {
+    "reset_password": ("mailbox@mail.com", "password"),
+    "confirm_account": ("mailbox@mail.com", "password"),
+}
 
 
 def register_user(login, email, password, db_session, user_class):
@@ -160,14 +165,12 @@ def have_tokens_in_interval_email(
     """Function to check existing a tokens in interval (10 mins) by email
     (open connection here)"""
     with db_session.create_session() as active_sess:
-        user = (
-            active_sess.query(user_class)
-            .filter(user_class.email == email and email_tokens_class.type == typ)
-            .first()
-        )
+        user = active_sess.query(user_class).filter(user_class.email == email).first()
         token = (
             active_sess.query(email_tokens_class)
-            .filter(email_tokens_class.user_id == user.id)
+            .filter(
+                email_tokens_class.user_id == user.id, email_tokens_class.type == typ
+            )
             .first()
         )
         try:
@@ -189,13 +192,13 @@ def get_token_data(db_session, url_key, email_tokens_class):
         return token
 
 
-def create_resetpass_key(email, db_session, user_class, email_tokens_class):
+def create_resetpass_key(reciver_email, db_session, user_class, email_tokens_class):
     """Function to create key for reset password, add it to database and sent mail with code
     (open connection here)"""
     with db_session.create_session() as active_sess:
         user = (
             active_sess.query(user_class)
-            .filter(user_class.email == email and email_tokens_class.type == 0)
+            .filter(user_class.email == reciver_email and email_tokens_class.type == 0)
             .first()
         )
         active_sess.query(email_tokens_class).filter(
@@ -207,9 +210,23 @@ def create_resetpass_key(email, db_session, user_class, email_tokens_class):
         email_token.user_id = user.id
         email_token.type = 0
         email_token.sent_date = datetime.now()
+
+        mail_content = (
+            f"<p>Уважаемый пользователь, используйте код<br>{email_token.email_key}"
+            + '<br>для восстановления пароля на сайте проекта "Образование в кольце"</p><br>'
+        )
+        subject = "Восстановление пароля"
+        message = build_mail(
+            MAILBOXES["reset_password"][0], subject, mail_content, reciver_email
+        )
+        if message is None:
+            return -1
+        threading.Thread(
+            target=sent_mail, args=(*MAILBOXES["reset_password"], message), daemon=True
+        ).start()
+
         active_sess.add(email_token)
         active_sess.commit()
-        sent_resetpass_mail(email, email_token.email_key)
         return email_token.url_key
 
 
@@ -241,9 +258,24 @@ def create_confirm_key(user, db_session, email_tokens_class):
         email_token.user_id = user.id
         email_token.type = 1
         email_token.sent_date = datetime.now()
+
+        mail_content = (
+            "<p>Уважаемый пользователь, для подтверждения аккаунта перейтите по ссылке:"
+            + f"<br>{request.host_url}auth/confirm-mail/confirm?key={email_token.url_key}<br>"
+        )
+        subject = "Подтверждение аккаунта"
+        message = build_mail(
+            MAILBOXES["confirm_account"][0], subject, mail_content, user.email
+        )
+        if message is None:
+            return -1
+        threading.Thread(
+            target=sent_mail, args=(*MAILBOXES["confirm_account"], message), daemon=True
+        ).start()
+
         active_sess.add(email_token)
         active_sess.commit()
-        sent_confirm_mail(user.email, email_token.url_key, request.host_url)
+        return 0
 
 
 def check_email_code(db_session, code, url_key, email_tokens_class):
