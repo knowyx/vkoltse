@@ -47,7 +47,13 @@ class NewsResource(Resource):
         abort_if_news_not_found(news_id)
         session = create_session()
         news = session.get(News, news_id)
-        return jsonify({"news": news.to_dict()})
+        return jsonify(
+            {
+                "news": news.to_dict(
+                    only=("id", "title", "content", "date", "user.id", "user.login")
+                )
+            }
+        )
 
     def delete(self, news_id):
         """deletes news with the specified id from the database, if news with
@@ -90,7 +96,9 @@ class NewsListResource(Resource):
         return jsonify(
             {
                 "news": [
-                    item.to_dict(only=("id", "title", "content", "date", "user"))
+                    item.to_dict(
+                        only=("id", "title", "content", "date", "user.id", "user.login")
+                    )
                     for item in news
                 ]
             }

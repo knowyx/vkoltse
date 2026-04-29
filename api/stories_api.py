@@ -48,7 +48,19 @@ class StoriesResource(Resource):
         abort_if_not_exist(story_id)
         session = create_session()
         story = session.get(Stories, story_id)
-        data = story.to_dict()
+        data = story.to_dict(
+            only=(
+                "id",
+                "title",
+                "content",
+                "date",
+                "author.id",
+                "author.login",
+                "review_authors.id",
+                "review_authors.login",
+                "checked",
+            )
+        )
         return jsonify({"story": data})
 
     def put(self, story_id):
@@ -93,7 +105,26 @@ class StoriesListResource(Resource):
         and checked information"""
         session = create_session()
         stories = session.query(Stories).all()
-        return jsonify({"stories": [s.to_dict() for s in stories]})
+        return jsonify(
+            {
+                "stories": [
+                    s.to_dict(
+                        only=(
+                            "id",
+                            "title",
+                            "content",
+                            "date",
+                            "author.id",
+                            "author.login",
+                            "review_authors.id",
+                            "review_authors.login",
+                            "checked",
+                        )
+                    )
+                    for s in stories
+                ]
+            }
+        )
 
     def post(self):
         """creates a new story in the database, expects content, title, author_id,

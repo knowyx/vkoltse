@@ -20,7 +20,6 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
     password_hash = Column(String, nullable=False)
 
     news = orm.relationship("News", back_populates="user")  # connection with news table
-
     stories = orm.relationship(
         "Stories", back_populates="author", foreign_keys="[Stories.author_id]"
     )  # connection with stories table for authors(1 user - a lot of stories)
@@ -30,6 +29,7 @@ class Users(SqlAlchemyBase, UserMixin, SerializerMixin):
         foreign_keys="[Stories.review_authors_id]",
     )  # connection with stories table for review authors(1 user - a lot of review stories)
 
+    __serialize_rules__ = ("-news", "-stories", "-review_stories")
     is_confirmed = Column(Boolean, nullable=False, default=False)
     sessions = orm.relationship("Sessions", back_populates="user")
     email_tokens = orm.relationship("EmailTokens", back_populates="user")
