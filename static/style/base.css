@@ -1,8 +1,3 @@
-@font-face {
-    font-family: 'spectrashell';
-    src: '{{ url_for("static", filename="spectrashell.ttf") }}';
-}
-
 .divcenter{
     justify-content: center;
     align-items: center;
@@ -15,11 +10,6 @@
 
 .critical-small{
     color: red;
-}
-
-.slogan{
-    font-family: 'spectrashell';
-    font-size: 5em;
 }
 
 .success{
