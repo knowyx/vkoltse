@@ -35,7 +35,19 @@ class UsersResource(Resource):
         abort_if_user_not_found(user_id)
         session = create_session()
         user = session.get(Users, user_id)
-        data = user.to_dict()
+        data = user.to_dict(
+            only=(
+                "id",
+                "login",
+                "email",
+                "permissions",
+                "is_confirmed",
+                "news.id",
+                "news.title",
+                "stories.id",
+                "stories.title",
+            )
+        )
         return jsonify({"user": data})
 
     def put(self, user_id):
