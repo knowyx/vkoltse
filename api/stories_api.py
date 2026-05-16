@@ -7,6 +7,7 @@ from flask_restful import Resource, abort, reqparse
 
 from data.db_session import create_session
 from data.stories import Stories
+from api.auth_api import require_auth
 
 
 def str_to_datetime(
@@ -69,31 +70,41 @@ class StoriesResource(Resource):
         if story with the specified id does not exist, returns 404 error, otherwise
         returns success message"""
         abort_if_not_exist(story_id)
-        session = create_session()
-        story = session.get(Stories, story_id)
 
-        args = parser.parse_args()
-        story.content = args["content"]
-        story.title = args["title"]
-        story.author_id = args["author_id"]
-        story.review_authors_id = args["review_authors_id"]
-        story.date = args["date"]
-        story.checked = args["checked"]
+        @require_auth(allow_same_user=True)
+        def _put(story_id):
+            session = create_session()
+            story = session.get(Stories, story_id)
 
-        session.commit()
-        return jsonify({"story": "Ok"})
+            args = parser.parse_args()
+            story.content = args["content"]
+            story.title = args["title"]
+            story.author_id = args["author_id"]
+            story.review_authors_id = args["review_authors_id"]
+            story.date = args["date"]
+            story.checked = args["checked"]
+
+            session.commit()
+            return jsonify({"story": "Ok"})
+
+        return _put(story_id)
 
     def delete(self, story_id):
         """deletes story with the specified id from the database, if story with
         the specified id does not exist, returns 404 error, otherwise returns
         success message"""
         abort_if_not_exist(story_id)
-        session = create_session()
-        story = session.get(Stories, story_id)
-        session.delete(story)
-        session.commit()
 
-        return jsonify({"success": "Ok"})
+        @require_auth(allow_same_user=True)
+        def _delete(story_id):
+            session = create_session()
+            story = session.get(Stories, story_id)
+            session.delete(story)
+            session.commit()
+
+            return jsonify({"success": "Ok"})
+
+        return _delete(story_id)
 
 
 class StoriesListResource(Resource):
@@ -130,17 +141,21 @@ class StoriesListResource(Resource):
         """creates a new story in the database, expects content, title, author_id,
         review_authors_id, date and checked in the request data, returns the id
         of the created story"""
-        args = parser.parse_args()
-        session = create_session()
+        @require_auth(allow_same_user=True)
+        def _post():
+            args = parser.parse_args()
+            session = create_session()
 
-        story = Stories(
-            content=args["content"],
-            title=args["title"],
-            author_id=args["author_id"],
-            review_authors_id=args["review_authors_id"],
-            date=args["date"],
-            checked=args["checked"],
-        )
-        session.add(story)
-        session.commit()
-        return jsonify({"id": story.id}), 201
+            story = Stories(
+                content=args["content"],
+                title=args["title"],
+                author_id=args["author_id"],
+                review_authors_id=args["review_authors_id"],
+                date=args["date"],
+                checked=args["checked"],
+            )
+            session.add(story)
+            session.commit()
+            return jsonify({"id": story.id}), 201
+
+        return _post()
