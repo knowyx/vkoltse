@@ -5,6 +5,8 @@ from datetime import datetime
 from flask import jsonify
 from flask_restful import Resource, abort, reqparse
 
+from api.auth_api import require_auth
+
 from data import db_session
 from data.db_session import create_session
 from data.news import News
@@ -60,29 +62,39 @@ class NewsResource(Resource):
         the specified id does not exist, returns 404 error, otherwise returns
         success message"""
         abort_if_news_not_found(news_id)
-        session = create_session()
-        news = session.get(News, news_id)
-        session.delete(news)
-        session.commit()
-        return jsonify({"success": "Ok"})
+        # ensure requester is owner or admin
+        @require_auth(allow_same_user=True)
+        def _delete(news_id):
+            session = create_session()
+            news = session.get(News, news_id)
+            session.delete(news)
+            session.commit()
+            return jsonify({"success": "Ok"})
+
+        return _delete(news_id)
 
     def put(self, news_id):
         """ "updates news with the specified id in the database, expects title,
         content, date and user_id in the request data, if news with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
         abort_if_news_not_found(news_id)
-        session = create_session()
-        news = session.get(News, news_id)
 
-        args = parser.parse_args()
-        news.title = args["title"]
-        news.content = args["content"]
-        news.date = args["date"]
-        news.user_id = args["user_id"]
+        @require_auth(allow_same_user=True)
+        def _put(news_id):
+            session = create_session()
+            news = session.get(News, news_id)
 
-        session.commit()
+            args = parser.parse_args()
+            news.title = args["title"]
+            news.content = args["content"]
+            news.date = args["date"]
+            news.user_id = args["user_id"]
 
-        return jsonify({"success": "Ok"})
+            session.commit()
+
+            return jsonify({"success": "Ok"})
+
+        return _put(news_id)
 
 
 class NewsListResource(Resource):
@@ -107,14 +119,18 @@ class NewsListResource(Resource):
     def post(self):
         """creates a new news in the database, expects title, content, date
         and user_id in the request data, returns the id of the created news"""
-        args = parser.parse_args()
-        session = create_session()
-        news = News(
-            title=args["title"],
-            content=args["content"],
-            date=args["date"],
-            user_id=args["user_id"],
-        )
-        session.add(news)
-        session.commit()
-        return jsonify({"id": news.id})
+        @require_auth(allow_same_user=True)
+        def _post():
+            args = parser.parse_args()
+            session = create_session()
+            news = News(
+                title=args["title"],
+                content=args["content"],
+                date=args["date"],
+                user_id=args["user_id"],
+            )
+            session.add(news)
+            session.commit()
+            return jsonify({"id": news.id})
+
+        return _post()

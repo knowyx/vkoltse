@@ -8,6 +8,7 @@ from api.stories_api import StoriesListResource, StoriesResource
 from api.users_api import UserListResource, UsersResource
 
 
+
 def init_api(app):
     """Initialize the API and add resources for users, news, and stories"""
     api = Api(app)

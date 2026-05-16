@@ -6,6 +6,7 @@ from flask_restful import Resource, abort, reqparse
 from data import db_session
 from data.db_session import create_session
 from data.users import Users
+from api.auth_api import require_auth
 
 
 def abort_if_user_not_found(user_id):
@@ -55,29 +56,39 @@ class UsersResource(Resource):
         email, login and password in the request data, if user with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
         abort_if_user_not_found(user_id)
-        session = create_session()
-        user = session.get(Users, user_id)
 
-        args = parser.parse_args()
-        user.permissions = args["permissions"]
-        user.email = args["email"]
-        user.login = args["login"]
-        if args.get("password"):
-            user.set_password(args["password"])
+        @require_auth(allow_same_user=True)
+        def _put(user_id):
+            session = create_session()
+            user = session.get(Users, user_id)
 
-        session.commit()
-        return jsonify({"success": "Ok"})
+            args = parser.parse_args()
+            user.permissions = args["permissions"]
+            user.email = args["email"]
+            user.login = args["login"]
+            if args.get("password"):
+                user.set_password(args["password"])
+
+            session.commit()
+            return jsonify({"success": "Ok"})
+
+        return _put(user_id)
 
     def delete(self, user_id):
         """deletes user with the specified id from the database, if user with the
         specified id does not exist, returns 404 error, otherwise returns success
         message"""
         abort_if_user_not_found(user_id)
-        session = create_session()
-        user = session.get(Users, user_id)
-        session.delete(user)
-        session.commit()
-        return jsonify({"success": "Ok"})
+
+        @require_auth(allow_same_user=True)
+        def _delete(user_id):
+            session = create_session()
+            user = session.get(Users, user_id)
+            session.delete(user)
+            session.commit()
+            return jsonify({"success": "Ok"})
+
+        return _delete(user_id)
 
 
 class UserListResource(Resource):
