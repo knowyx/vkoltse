@@ -1,6 +1,6 @@
 """This module contains api resources for working with users"""
 
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import Resource, abort, reqparse
 
 from data import db_session
@@ -25,6 +25,9 @@ parser.add_argument("login", required=True, type=str)
 parser.add_argument("password", required=True, type=str)
 
 
+ALLOWED_KEYS = [""]
+
+
 class UsersResource(Resource):
     """resource for working with users, supports GET, DELETE and PUT methods"""
 
@@ -32,6 +35,10 @@ class UsersResource(Resource):
         """returns user with the specified id, represented as a dictionary with id,
         permissions, email and login information, if user with the specified id does
         not exist, returns 404 error"""
+        key = request.args.get("key")
+        if key not in ALLOWED_KEYS:
+            return jsonify({"error": "Invalid access key!"})
+
         abort_if_user_not_found(user_id)
         session = create_session()
         user = session.get(Users, user_id)
@@ -54,6 +61,10 @@ class UsersResource(Resource):
         """updates user with the specified id in the database, expects permissions,
         email, login and password in the request data, if user with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
+        key = request.args.get("key")
+        if key not in ALLOWED_KEYS:
+            return jsonify({"error": "Invalid access key!"})
+
         abort_if_user_not_found(user_id)
         session = create_session()
         user = session.get(Users, user_id)
@@ -72,6 +83,10 @@ class UsersResource(Resource):
         """deletes user with the specified id from the database, if user with the
         specified id does not exist, returns 404 error, otherwise returns success
         message"""
+        key = request.args.get("key")
+        if key not in ALLOWED_KEYS:
+            return jsonify({"error": "Invalid access key!"})
+
         abort_if_user_not_found(user_id)
         session = create_session()
         user = session.get(Users, user_id)
@@ -86,6 +101,10 @@ class UserListResource(Resource):
     def get(self):
         """returns a list of all users in the database, each user is represented
         as a dictionary with id, permissions, email and login information"""
+        key = request.args.get("key")
+        if key not in ALLOWED_KEYS:
+            return jsonify({"error": "Invalid access key!"})
+
         session = create_session()
         users = session.query(Users).all()
         return jsonify(
@@ -101,6 +120,10 @@ class UserListResource(Resource):
         """creates a new user in the database, expects permissions, email, login
         and password in the request data, returns the id of the created user,
         if user with the same login already exists, returns error message"""
+        key = request.args.get("key")
+        if key not in ALLOWED_KEYS:
+            return jsonify({"error": "Invalid access key!"})
+
         args = parser.parse_args()
         session = create_session()
 
