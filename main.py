@@ -12,10 +12,16 @@ from data.users import Users
 from stories_handlers.blueprint import story_blueprint
 
 app = Flask(__name__, template_folder="html", static_folder="static")
-app.config["SECRET_KEY"] = "vkoltse_dev"
+app.config["SECRET_KEY"] = "4voALsx3H5cxWt-0Dn_4laa8WbvgOzS55uEhaGy-jGg"
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_size": 5,
+    "max_overflow": 2,
+    "pool_recycle": 1800,
+    "pool_pre_ping": True,
+}
 
 
-BASE_DIR = "base_dir of project deploy"
+BASE_DIR = "/home/vkoltse/vkoltse"
 
 
 @app.route("/")
