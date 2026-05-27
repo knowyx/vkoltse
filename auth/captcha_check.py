@@ -8,7 +8,9 @@ import sys
 
 import requests
 
-SMARTCAPTCHA_SERVER_KEY = "copy here server key of your captcha"
+from config.cfg_handler import get_config_data
+
+SMARTCAPTCHA_SERVER_KEY = get_config_data("yandex-captcha-server-key")
 
 
 def check_captcha(token, addr):

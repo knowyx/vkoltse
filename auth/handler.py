@@ -12,11 +12,12 @@ from secrets import SystemRandom, token_urlsafe
 from flask import request
 
 from auth.email_sender import build_mail, sent_mail
+from config.cfg_handler import get_config_data
 
-BASE_DIR = "base_dir of project deploy"
+BASE_DIR = get_config_data("base-dir")
 MAILBOXES = {
-    "reset_password": ("mailbox@mail.com", "password"),
-    "confirm_account": ("mailbox@mail.com", "password"),
+    "reset_password": get_config_data("email-reset-pass"),
+    "confirm_account": get_config_data("email-confirm-account"),
 }
 
 
@@ -217,12 +218,15 @@ def create_resetpass_key(reciver_email, db_session, user_class, email_tokens_cla
         )
         subject = "Восстановление пароля"
         message = build_mail(
-            MAILBOXES["reset_password"][0], subject, mail_content, reciver_email
+            MAILBOXES["reset_password"]["address"], subject, mail_content, reciver_email
         )
         if message is None:
             return -1
         threading.Thread(
-            target=sent_mail, args=(*MAILBOXES["reset_password"], message), daemon=True
+            target=sent_mail,
+            args=(message,),
+            kwargs=MAILBOXES["reset_password"],
+            daemon=True,
         ).start()
 
         active_sess.add(email_token)
@@ -265,12 +269,15 @@ def create_confirm_key(user, db_session, email_tokens_class):
         )
         subject = "Подтверждение аккаунта"
         message = build_mail(
-            MAILBOXES["confirm_account"][0], subject, mail_content, user.email
+            MAILBOXES["confirm_account"]["address"], subject, mail_content, user.email
         )
         if message is None:
             return -1
         threading.Thread(
-            target=sent_mail, args=(*MAILBOXES["confirm_account"], message), daemon=True
+            target=sent_mail,
+            args=(message,),
+            kwargs=MAILBOXES["confirm_account"],
+            daemon=True,
         ).start()
 
         active_sess.add(email_token)

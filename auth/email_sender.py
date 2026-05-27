@@ -10,17 +10,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from ssl import SSLError
 
-SERVER = "put here your mail server"
-PORT = 465
+from config.cfg_handler import get_config_data
 
-BASE_URL = "base_dir of project deploy"
+SERVER = get_config_data("email-sending-server")
+PORT = get_config_data("email-sending-port")
+
+BASE_DIR = get_config_data("base-dir")
 
 
-def sent_mail(sender_email, sender_pass, message):
+def sent_mail(message, address, password):
     """Function send email to an email address of recipient or print error"""
     try:
         with smtplib.SMTP_SSL(SERVER, PORT) as server:
-            server.login(sender_email, sender_pass)
+            server.login(address, password)
             server.send_message(message)
             print("Письмо успешно отправлено!")
             return True
@@ -40,7 +42,7 @@ def build_mail(sender_email, subject, mail_content, reciver):
         message.attach(alt)
 
         with open(
-            os.path.join(os.path.join(BASE_URL, "html/email"), "mail.html"),
+            os.path.join(os.path.join(BASE_DIR, "html/email"), "mail.html"),
             mode="rt",
             encoding="UTF-8",
         ) as f:
@@ -52,7 +54,7 @@ def build_mail(sender_email, subject, mail_content, reciver):
         alt.attach(MIMEText("Текст письма", "plain"))
         alt.attach(MIMEText(text, "html"))
 
-        with open(os.path.join(BASE_URL, "static/img/logo1000.png"), mode="rb") as f:
+        with open(os.path.join(BASE_DIR, "static/img/logo1000.png"), mode="rb") as f:
             img = MIMEImage(f.read(), _subtype="png")
 
         img.add_header("Content-ID", "<image1>")

@@ -4,14 +4,28 @@ for these actions and functions for handling authentication logic"""
 
 from flask import Blueprint, make_response, redirect, render_template, request
 
-from auth.auth_forms import (ConfirmMailForm, ForgotForm, LoginForm,
-                             RegisterForm, SetupPasswordForm)
+from auth.auth_forms import (
+    ConfirmMailForm,
+    ForgotForm,
+    LoginForm,
+    RegisterForm,
+    SetupPasswordForm,
+)
 from auth.captcha_check import check_captcha
-from auth.handler import (auth_user_view, check_cookie_exist, confirm_user,
-                          create_auth_session, create_confirm_key,
-                          create_resetpass_key, get_token_data,
-                          get_user_info_by_session, login_user, register_user,
-                          update_password)
+from auth.handler import (
+    auth_user_view,
+    check_cookie_exist,
+    confirm_user,
+    create_auth_session,
+    create_confirm_key,
+    create_resetpass_key,
+    get_token_data,
+    get_user_info_by_session,
+    login_user,
+    register_user,
+    update_password,
+)
+from config.cfg_handler import get_config_data
 from data import db_session
 from data.email_tokens import EmailTokens
 from data.sessions import Sessions
@@ -52,6 +66,7 @@ def login():
         pagename="Авторизация",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
@@ -82,6 +97,7 @@ def forgot_password():
         pagename="Сброс пароля",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
@@ -121,6 +137,7 @@ def register():
         pagename="Регистрация",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
@@ -160,6 +177,7 @@ def setup_password():
         pagename="Установка пароля",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
@@ -212,6 +230,7 @@ def confirm_mail_sent():
             db_session, session_key, Users, Sessions
         ).login,
         user=user_button,
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 

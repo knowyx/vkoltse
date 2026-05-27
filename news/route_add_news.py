@@ -7,6 +7,7 @@ from flask import abort, redirect, render_template
 from werkzeug.utils import secure_filename
 
 from auth.handler import auth_user_view
+from config.cfg_handler import get_config_data
 from data import db_session
 from data.news import News
 from data.sessions import Sessions
@@ -16,7 +17,7 @@ from .blueprint import news_blueprint
 from .forms import NewsSubmitForm
 from .handler import check_admin_status, save_news
 
-BASE_DIR = "base_dir of project deploy"
+BASE_DIR = get_config_data("base-dir")
 
 
 @news_blueprint.route("/news/add", methods=["GET", "POST"])

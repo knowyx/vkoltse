@@ -4,7 +4,9 @@ that file"""
 import os
 import runpy
 
-BASE_DIR = "base_dir of project deploy"
+from config.cfg_handler import get_config_data
+
+BASE_DIR = get_config_data("base-dir")
 
 module = runpy.run_path(os.path.join(BASE_DIR, "run_app.py"))
 application = module["application"]
