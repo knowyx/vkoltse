@@ -338,8 +338,7 @@ def check_cookie_exist(db_session, session_class):
             ).delete()
             active_sess.commit()
             return -1
-        else:
-            return 1
+        return 1
 
 
 def confirm_user(db_session, key, email_tokens_class, user_class):
