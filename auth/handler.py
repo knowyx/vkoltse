@@ -316,12 +316,29 @@ def update_password(db_session, url_key, password, email_tokens_class, user_clas
         active_sess.commit()
 
 
-def check_cookie_exist():
+def check_cookie_exist(db_session, session_class):
     """Fuction to validate cookie existing"""
+    # 0 - OK, 1 - currently logged in, -1 - remove cookie and redir to auth
     cookie_data = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-    if cookie_data is not None:
-        return True
-    return False
+    if cookie_data is None:  # cookie is empty
+        return 0
+    with db_session.create_session() as active_sess:
+        session_data = (
+            active_sess.query(session_class)
+            .filter(session_class.session_key == cookie_data)
+            .first()
+        )
+        if session_data is None:  # key removed from base
+            return -1
+        if datetime.now() > session_data.auth_date + timedelta(
+            days=10
+        ):  # cookie contains outdated key
+            active_sess.query(session_class).filter(
+                session_class.session_key == cookie_data
+            ).delete()
+            active_sess.commit()
+            return -1
+        return 1
 
 
 def confirm_user(db_session, key, email_tokens_class, user_class):
