@@ -4,30 +4,47 @@ for these actions and functions for handling authentication logic"""
 
 from flask import Blueprint, make_response, redirect, render_template, request
 
-from auth.auth_forms import (ConfirmMailForm, ForgotForm, LoginForm,
-                             RegisterForm, SetupPasswordForm)
+from auth.auth_forms import (
+    ConfirmMailForm,
+    ForgotForm,
+    LoginForm,
+    RegisterForm,
+    SetupPasswordForm,
+)
 from auth.captcha_check import check_captcha
-from auth.handler import (auth_user_view, check_cookie_exist, confirm_user,
-                          create_auth_session, create_confirm_key,
-                          create_resetpass_key, get_token_data,
-                          get_user_info_by_session, login_user, register_user,
-                          update_password)
+from auth.handler import (
+    auth_user_view,
+    check_cookie_exist,
+    confirm_user,
+    create_auth_session,
+    create_confirm_key,
+    create_resetpass_key,
+    get_token_data,
+    get_user_info_by_session,
+    login_user,
+    register_user,
+    update_password,
+)
+from config.cfg_handler import get_config_data
 from data import db_session
 from data.email_tokens import EmailTokens
 from data.sessions import Sessions
 from data.users import Users
 
-blueprint = Blueprint("auth", __name__, template_folder="html/auth")
+blueprint = Blueprint("auth", __name__, template_folder="html/auth", url_prefix="/auth")
 
 
-@blueprint.route("/auth/login", methods=["GET", "POST"])
+@blueprint.route("/login", methods=["GET", "POST"])
 def login():
     """if session cookie exists, redirects to index page, otherwise processes login
     form, if form is valid and captcha check is passed, creates auth session and
     sets session cookie, then redirects to index page, otherwise redirects back to
     login page with error message"""
-    if check_cookie_exist():
-        return redirect("/")
+    match check_cookie_exist(db_session, Sessions):
+        case 1:
+            return redirect("/")
+        case -1:
+            return redirect(f"/auth/logout?path={request.path}")
     form = LoginForm()
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
@@ -36,7 +53,7 @@ def login():
                     form.email.data, db_session, Sessions, Users
                 )
                 res = make_response("", 302)
-                res.headers["Location"] = "/index"
+                res.headers["Location"] = "/"
                 res.set_cookie(
                     "session_key (DO NOT SHARE WITH ANYONE!)",
                     session_key,
@@ -52,18 +69,22 @@ def login():
         pagename="Авторизация",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
-@blueprint.route("/auth/forgot-password", methods=["GET", "POST"])
+@blueprint.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     """if session cookie exists, redirects to index page, otherwise processes
     forgot password form, if form is valid and captcha check is passed, creates
     reset password key and redirects to setup password page with the key in the
     query string, otherwise redirects back to forgot password page with error
     message"""
-    if check_cookie_exist():
-        return redirect("/")
+    match check_cookie_exist(db_session, Sessions):
+        case 1:
+            return redirect("/")
+        case -1:
+            return redirect(f"/auth/logout?path={request.path}")
     form = ForgotForm(session=db_session)
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
@@ -82,17 +103,21 @@ def forgot_password():
         pagename="Сброс пароля",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
-@blueprint.route("/auth/register", methods=["GET", "POST"])
+@blueprint.route("/register", methods=["GET", "POST"])
 def register():
     """if session cookie exists, redirects to index page, otherwise processes
     registration form, if form is valid and captcha check is passed, creates
     new user, creates auth session and sets session cookie, then redirects to
     index page, otherwise redirects back to registration page with error message"""
-    if check_cookie_exist():
-        return redirect("/")
+    match check_cookie_exist(db_session, Sessions):
+        case 1:
+            return redirect("/")
+        case -1:
+            return redirect(f"/auth/logout?path={request.path}")
     form = RegisterForm(session=db_session)
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
@@ -121,28 +146,33 @@ def register():
         pagename="Регистрация",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
-@blueprint.route("/auth/logout")
+@blueprint.route("/logout")
 def logout():
     """if session cookie exists, deletes auth session from the database
     and removes session cookie, then redirects to index page, otherwise
     redirects to login page"""
+    print(request.args.get("path", "/"))
     res = make_response("", 302)
-    res.headers["Location"] = "/index"
+    res.headers["Location"] = request.args.get("path", "/")
     res.set_cookie("session_key (DO NOT SHARE WITH ANYONE!)", "", 0)
     return res
 
 
-@blueprint.route("/auth/forgot-password/setup", methods=["GET", "POST"])
+@blueprint.route("/forgot-password/setup", methods=["GET", "POST"])
 def setup_password():
     """if session cookie exists, redirects to index page, otherwise
     processes setup password form, if form is valid and captcha check
     is passed, updates user's password and redirects to login page,
     otherwise redirects back to setup password page with error message"""
-    if check_cookie_exist():
-        return redirect("/")
+    match check_cookie_exist(db_session, Sessions):
+        case 1:
+            return redirect("/")
+        case -1:
+            return redirect(f"/auth/logout?path={request.path}")
     url_key = request.args.get("key", None)
     token = get_token_data(db_session, url_key, EmailTokens)
     if not token:
@@ -160,15 +190,22 @@ def setup_password():
         pagename="Установка пароля",
         form=form,
         err=request.args.get("err", None),
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
-@blueprint.route("/auth/confirm-mail", methods=["GET", "POST"])
+@blueprint.route("/confirm-mail", methods=["GET", "POST"])
 def confirm_mail_sent():
+    # pylint: disable=R0911
     """if session cookie exists, redirects to index page, otherwise
     processes confirm mail form, if form is valid and captcha check is
     passed, creates confirm mail key and renders success page, otherwise
     redirects back to confirm mail page with error message"""
+    match check_cookie_exist(db_session, Sessions):
+        case 0:
+            return redirect("/auth/login")
+        case -1:
+            return redirect("/auth/logout?path=/auth/login")
     redirect_paths = [
         "/",
         "/auth/logout",
@@ -176,16 +213,13 @@ def confirm_mail_sent():
         "/auth/confirm-mail?err=build",
     ]
     redir_to_main = False
-    if not check_cookie_exist():
-        redir_to_main = True
-    else:
-        try:
-            session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-            user = get_user_info_by_session(db_session, session_key, Users, Sessions)
-            if user.is_confirmed:
-                redir_to_main = True
-        except AttributeError:
+    try:
+        session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
+        user = get_user_info_by_session(db_session, session_key, Users, Sessions)
+        if user.is_confirmed:
             redir_to_main = True
+    except AttributeError:
+        redir_to_main = True
     if redir_to_main:
         return redirect(redirect_paths[0])
     user_button = auth_user_view(db_session, Users, Sessions)
@@ -212,36 +246,31 @@ def confirm_mail_sent():
             db_session, session_key, Users, Sessions
         ).login,
         user=user_button,
+        yandex_captcha_data_sitekey=get_config_data("yandex-captcha-data-sitekey"),
     )
 
 
-@blueprint.route("/auth/confirm-mail/confirm")
+@blueprint.route("/confirm-mail/confirm")
 def confirm_mail_final():
     """if session cookie exists, processes confirm mail key from query
     string, if key is valid, confirms user's email and renders success
     page, otherwise renders failure page, if session cookie does not
     exist or user is already confirmed, redirects to index page"""
-    if not check_cookie_exist():
-        return redirect("/")
-    try:
-        session_key = request.cookies.get("session_key (DO NOT SHARE WITH ANYONE!)")
-        user = get_user_info_by_session(db_session, session_key, Users, Sessions)
-    except AttributeError:
-        return redirect("/")
-    if user.is_confirmed:
-        return redirect("/")
-    user_button = auth_user_view(db_session, Users, Sessions)
+    user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
-    res = confirm_user(db_session, request.args.get("key", None), EmailTokens, Users)
+    key = request.args.get("key", None)
+    if key is None:
+        return redirect("/")
+    res = confirm_user(db_session, key, EmailTokens, Users)
     if res:
         return render_template(
             "auth/confirm_mail_final_success.html",
             pagename="Подтверждение аккаунта",
-            user=user_button,
+            user=user,
         )
     return render_template(
         "auth/confirm_mail_final_fail.html",
         pagename="Подтверждение аккаунта",
-        user=user_button,
+        user=user,
     )

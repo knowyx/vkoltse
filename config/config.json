@@ -1,0 +1,17 @@
+{
+    "base-dir": "",
+    "venv-dir-name": "",
+    "allowed-users-api-keys": [""],
+    "email-sending-server": "",
+    "email-sending-port": 465,
+    "email-reset-pass": {
+        "address": "",
+        "password": ""
+    },
+    "email-confirm-account": {
+        "address": "",
+        "password": ""
+    },
+    "yandex-captcha-data-sitekey": "",
+    "yandex-captcha-server-key": ""
+}

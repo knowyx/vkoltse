@@ -3,6 +3,7 @@
 from flask import jsonify, request
 from flask_restful import Resource, abort, reqparse
 
+from config.cfg_handler import get_config_data
 from data import db_session
 from data.db_session import create_session
 from data.users import Users
@@ -25,7 +26,7 @@ parser.add_argument("login", required=True, type=str)
 parser.add_argument("password", required=True, type=str)
 
 
-ALLOWED_KEYS = [""]
+ALLOWED_KEYS = get_config_data("allowed-users-api-keys")
 
 
 class UsersResource(Resource):
@@ -36,7 +37,7 @@ class UsersResource(Resource):
         permissions, email and login information, if user with the specified id does
         not exist, returns 404 error"""
         key = request.args.get("key")
-        if key not in ALLOWED_KEYS:
+        if key is None or key not in ALLOWED_KEYS:
             return jsonify({"error": "Invalid access key!"})
 
         abort_if_user_not_found(user_id)
@@ -62,7 +63,7 @@ class UsersResource(Resource):
         email, login and password in the request data, if user with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
         key = request.args.get("key")
-        if key not in ALLOWED_KEYS:
+        if key is None or key not in ALLOWED_KEYS:
             return jsonify({"error": "Invalid access key!"})
 
         abort_if_user_not_found(user_id)
@@ -84,7 +85,7 @@ class UsersResource(Resource):
         specified id does not exist, returns 404 error, otherwise returns success
         message"""
         key = request.args.get("key")
-        if key not in ALLOWED_KEYS:
+        if key is None or key not in ALLOWED_KEYS:
             return jsonify({"error": "Invalid access key!"})
 
         abort_if_user_not_found(user_id)
@@ -102,7 +103,7 @@ class UserListResource(Resource):
         """returns a list of all users in the database, each user is represented
         as a dictionary with id, permissions, email and login information"""
         key = request.args.get("key")
-        if key not in ALLOWED_KEYS:
+        if key is None or key not in ALLOWED_KEYS:
             return jsonify({"error": "Invalid access key!"})
 
         session = create_session()
@@ -121,7 +122,7 @@ class UserListResource(Resource):
         and password in the request data, returns the id of the created user,
         if user with the same login already exists, returns error message"""
         key = request.args.get("key")
-        if key not in ALLOWED_KEYS:
+        if key is None or key not in ALLOWED_KEYS:
             return jsonify({"error": "Invalid access key!"})
 
         args = parser.parse_args()

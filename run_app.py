@@ -3,10 +3,17 @@
 import os
 import sys
 
-BASE_DIR = "base_dir of project deploy"
+from config.cfg_handler import get_config_data
+
+BASE_DIR = get_config_data("base-dir")
 
 sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, os.path.join(BASE_DIR, "venv1/lib/python3.14/site-packages"))
+sys.path.insert(
+    0,
+    os.path.join(
+        BASE_DIR, f"{get_config_data('venv-dir-name')}/lib/python3.10/site-packages"
+    ),
+)
 
 print("WSGI START", file=sys.stderr)
 
