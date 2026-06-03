@@ -196,6 +196,7 @@ def setup_password():
 
 @blueprint.route("/confirm-mail", methods=["GET", "POST"])
 def confirm_mail_sent():
+    # pylint: disable=R0911
     """if session cookie exists, redirects to index page, otherwise
     processes confirm mail form, if form is valid and captcha check is
     passed, creates confirm mail key and renders success page, otherwise
@@ -204,7 +205,7 @@ def confirm_mail_sent():
         case 0:
             return redirect("/auth/login")
         case -1:
-            return redirect(f"/auth/logout?path=/auth/login")
+            return redirect("/auth/logout?path=/auth/login")
     redirect_paths = [
         "/",
         "/auth/logout",

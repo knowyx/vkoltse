@@ -330,7 +330,7 @@ def check_cookie_exist(db_session, session_class):
         )
         if session_data is None:  # key removed from base
             return -1
-        elif datetime.now() > session_data.auth_date + timedelta(
+        if datetime.now() > session_data.auth_date + timedelta(
             days=10
         ):  # cookie contains outdated key
             active_sess.query(session_class).filter(

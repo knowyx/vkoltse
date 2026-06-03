@@ -11,7 +11,7 @@ sys.path.insert(0, BASE_DIR)
 sys.path.insert(
     0,
     os.path.join(
-        BASE_DIR, f"{get_config_data("venv-dir-name")}/lib/python3.10/site-packages"
+        BASE_DIR, f"{get_config_data('venv-dir-name')}/lib/python3.10/site-packages"
     ),
 )
 
