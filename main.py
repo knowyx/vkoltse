@@ -10,7 +10,6 @@ from data import db_session
 from data.sessions import Sessions
 from data.users import Users
 from stories_handlers.blueprint import story_blueprint
-from config.cfg_handler import get_config_data
 
 app = Flask(__name__, template_folder="html", static_folder="static")
 app.config["SECRET_KEY"] = "vkoltse_dev"
@@ -20,9 +19,6 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 1800,
     "pool_pre_ping": True,
 }
-
-
-BASE_DIR = get_config_data("base-dir")
 
 
 @app.route("/")
