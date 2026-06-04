@@ -2,12 +2,13 @@
 
 from datetime import datetime
 
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import Resource, abort, reqparse
 
 from data import db_session
 from data.db_session import create_session
 from data.news import News
+from config.cfg_handler import get_config_data
 
 
 def abort_if_news_not_found(news_id):
@@ -37,6 +38,11 @@ parser.add_argument("date", required=True, type=parse_date)
 parser.add_argument("user_id", required=True, type=int)
 
 
+NEWS_API_VIEW_KEYS = get_config_data("api-keys")["news"]["view"]
+NEWS_API_EDIT_KEYS = get_config_data("api-keys")["news"]["edit"]
+NEWS_API_ENABLED = get_config_data("api-keys")["news"]["enabled"]
+
+
 class NewsResource(Resource):
     """resource for working with news, supports GET, DELETE and PUT methods"""
 
@@ -44,6 +50,15 @@ class NewsResource(Resource):
         """returns news with the specified id, represented as a dictionary with
         id, title, content, date and user information, if news with the specified
         id does not exist, returns 404 error"""
+        if not NEWS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in NEWS_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_news_not_found(news_id)
         session = create_session()
         news = session.get(News, news_id)
@@ -59,6 +74,15 @@ class NewsResource(Resource):
         """deletes news with the specified id from the database, if news with
         the specified id does not exist, returns 404 error, otherwise returns
         success message"""
+        if not NEWS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in NEWS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_news_not_found(news_id)
         session = create_session()
         news = session.get(News, news_id)
@@ -70,6 +94,15 @@ class NewsResource(Resource):
         """ "updates news with the specified id in the database, expects title,
         content, date and user_id in the request data, if news with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
+        if not NEWS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in NEWS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_news_not_found(news_id)
         session = create_session()
         news = session.get(News, news_id)
@@ -91,6 +124,15 @@ class NewsListResource(Resource):
     def get(self):
         """returns a list of all news in the database, each news is represented
         as a dictionary with id, title, content, date and user information"""
+        if not NEWS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in NEWS_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
+
         session = create_session()
         news = session.query(News).all()
         return jsonify(
@@ -107,6 +149,15 @@ class NewsListResource(Resource):
     def post(self):
         """creates a new news in the database, expects title, content, date
         and user_id in the request data, returns the id of the created news"""
+        if not NEWS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in NEWS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         args = parser.parse_args()
         session = create_session()
         news = News(

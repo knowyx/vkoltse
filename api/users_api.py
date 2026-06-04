@@ -26,7 +26,9 @@ parser.add_argument("login", required=True, type=str)
 parser.add_argument("password", required=True, type=str)
 
 
-ALLOWED_KEYS = get_config_data("allowed-users-api-keys")
+USERS_API_VIEW_KEYS = get_config_data("api-keys")["users"]["view"]
+USERS_API_EDIT_KEYS = get_config_data("api-keys")["users"]["edit"]
+USERS_API_ENABLED = get_config_data("api-keys")["users"]["enabled"]
 
 
 class UsersResource(Resource):
@@ -36,9 +38,14 @@ class UsersResource(Resource):
         """returns user with the specified id, represented as a dictionary with id,
         permissions, email and login information, if user with the specified id does
         not exist, returns 404 error"""
+        if not USERS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
         key = request.args.get("key")
-        if key is None or key not in ALLOWED_KEYS:
-            return jsonify({"error": "Invalid access key!"})
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in USERS_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
 
         abort_if_user_not_found(user_id)
         session = create_session()
@@ -62,9 +69,14 @@ class UsersResource(Resource):
         """updates user with the specified id in the database, expects permissions,
         email, login and password in the request data, if user with the specified
         id does not exist, returns 404 error, otherwise returns success message"""
+        if not USERS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
         key = request.args.get("key")
-        if key is None or key not in ALLOWED_KEYS:
-            return jsonify({"error": "Invalid access key!"})
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in USERS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
 
         abort_if_user_not_found(user_id)
         session = create_session()
@@ -84,9 +96,14 @@ class UsersResource(Resource):
         """deletes user with the specified id from the database, if user with the
         specified id does not exist, returns 404 error, otherwise returns success
         message"""
+        if not USERS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
         key = request.args.get("key")
-        if key is None or key not in ALLOWED_KEYS:
-            return jsonify({"error": "Invalid access key!"})
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in USERS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
 
         abort_if_user_not_found(user_id)
         session = create_session()
@@ -102,9 +119,14 @@ class UserListResource(Resource):
     def get(self):
         """returns a list of all users in the database, each user is represented
         as a dictionary with id, permissions, email and login information"""
+        if not USERS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
         key = request.args.get("key")
-        if key is None or key not in ALLOWED_KEYS:
-            return jsonify({"error": "Invalid access key!"})
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in USERS_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
 
         session = create_session()
         users = session.query(Users).all()
@@ -121,9 +143,14 @@ class UserListResource(Resource):
         """creates a new user in the database, expects permissions, email, login
         and password in the request data, returns the id of the created user,
         if user with the same login already exists, returns error message"""
+        if not USERS_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
         key = request.args.get("key")
-        if key is None or key not in ALLOWED_KEYS:
-            return jsonify({"error": "Invalid access key!"})
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in USERS_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
 
         args = parser.parse_args()
         session = create_session()

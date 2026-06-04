@@ -1,7 +1,6 @@
 {
     "base-dir": "",
     "venv-dir-name": "",
-    "allowed-users-api-keys": [""],
     "email-sending-server": "",
     "email-sending-port": 465,
     "email-reset-pass": {
@@ -13,5 +12,22 @@
         "password": ""
     },
     "yandex-captcha-data-sitekey": "",
-    "yandex-captcha-server-key": ""
+    "yandex-captcha-server-key": "",
+    "api-keys": {
+        "users": {
+            "view": [""],
+            "edit": [""],
+            "enabled": false
+        },
+        "stories": {
+            "view": [""],
+            "edit": [""],
+            "enabled": false
+        },
+        "news": {
+            "view": [""],
+            "edit": [""],
+            "enabled": false
+        }
+    }
 }

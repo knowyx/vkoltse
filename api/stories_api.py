@@ -2,11 +2,12 @@
 
 from datetime import datetime
 
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import Resource, abort, reqparse
 
 from data.db_session import create_session
 from data.stories import Stories
+from config.cfg_handler import get_config_data
 
 
 def str_to_datetime(
@@ -38,6 +39,11 @@ parser.add_argument("date", required=True, type=str_to_datetime)
 parser.add_argument("checked", required=True, type=int)
 
 
+STORIES_API_VIEW_KEYS = get_config_data("api-keys")["stories"]["view"]
+STORIES_API_EDIT_KEYS = get_config_data("api-keys")["stories"]["edit"]
+STORIES_API_ENABLED = get_config_data("api-keys")["stories"]["enabled"]
+
+
 class StoriesResource(Resource):
     """resource for working with stories, supports GET, DELETE and PUT methods"""
 
@@ -45,6 +51,15 @@ class StoriesResource(Resource):
         """returns story with the specified id, represented as a dictionary with id,
         content, title, author_id, review_authors_id, date and checked information,
         if story with the specified id does not exist, returns 404 error"""
+        if not STORIES_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in STORIES_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_not_exist(story_id)
         session = create_session()
         story = session.get(Stories, story_id)
@@ -68,6 +83,15 @@ class StoriesResource(Resource):
         title, author_id, review_authors_id, date and checked in the request data,
         if story with the specified id does not exist, returns 404 error, otherwise
         returns success message"""
+        if not STORIES_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in STORIES_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_not_exist(story_id)
         session = create_session()
         story = session.get(Stories, story_id)
@@ -87,6 +111,15 @@ class StoriesResource(Resource):
         """deletes story with the specified id from the database, if story with
         the specified id does not exist, returns 404 error, otherwise returns
         success message"""
+        if not STORIES_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in STORIES_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         abort_if_not_exist(story_id)
         session = create_session()
         story = session.get(Stories, story_id)
@@ -103,6 +136,15 @@ class StoriesListResource(Resource):
         """returns a list of all stories in the database, each story is represented
         as a dictionary with id, content, title, author_id, review_authors_id, date
         and checked information"""
+        if not STORIES_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in STORIES_API_VIEW_KEYS:
+            abort(403, message="Invalid access key!")
+
         session = create_session()
         stories = session.query(Stories).all()
         return jsonify(
@@ -130,6 +172,15 @@ class StoriesListResource(Resource):
         """creates a new story in the database, expects content, title, author_id,
         review_authors_id, date and checked in the request data, returns the id
         of the created story"""
+        if not STORIES_API_ENABLED:
+            abort(403, message="This API is disabled right now.")
+
+        key = request.args.get("key")
+        if key is None:
+            abort(403, message="Please provide an access key.")
+        if key not in STORIES_API_EDIT_KEYS:
+            abort(403, message="Invalid access key!")
+
         args = parser.parse_args()
         session = create_session()
 
