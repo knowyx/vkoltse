@@ -1,6 +1,6 @@
 {
-    "base-dir": "",
-    "venv-dir-name": "",
+    "base-dir": "/home/knowyx/proj/py/vkoltse_fromweb/vkoltse_a",
+    "venv-dir-name": "venv",
     "email-sending-server": "",
     "email-sending-port": 465,
     "email-reset-pass": {

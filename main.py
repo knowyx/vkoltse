@@ -69,6 +69,16 @@ def err404(_):
     )
 
 
+@app.route("/test")
+def test():
+    return render_template("test.html")
+
+
+@app.route("/test1")
+def test1():
+    return render_template("test2.html")
+
+
 def main():
     """main function, initializes database, registers blueprints and runs the app
     (develop, not using now)"""
