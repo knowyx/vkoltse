@@ -10,9 +10,10 @@ from data import db_session
 from data.sessions import Sessions
 from data.users import Users
 from stories_handlers.blueprint import story_blueprint
+from config.cfg_handler import get_config_data
 
 app = Flask(__name__, template_folder="html", static_folder="static")
-app.config["SECRET_KEY"] = "4voALsx3H5cxWt-0Dn_4laa8WbvgOzS55uEhaGy-jGg"
+app.config["SECRET_KEY"] = "vkoltse_dev"
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_size": 5,
     "max_overflow": 2,
@@ -21,7 +22,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 
 
-BASE_DIR = "/home/vkoltse/vkoltse"
+BASE_DIR = get_config_data("base-dir")
 
 
 @app.route("/")
