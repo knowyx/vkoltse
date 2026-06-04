@@ -28,8 +28,14 @@ debug run (uncomment debug lines in index.wsgi)
 ```
 gunicorn wsgi:application \
   --reload \
-  --workers 1 \
+  --workers 2 \
+  -b 0.0.0.0:8000 \
   --log-level debug \
   --access-logfile - \
   --error-logfile -
+```
+
+check pylint localy
+```
+pylint --ignored-modules=alembic.context --disable=R0801,E0401 $(git ls-files '*.py')
 ```

@@ -3,7 +3,7 @@
 import os
 from json import load
 
-BASE_DIR = "/home/knowyx/proj/py/vkoltse_fromweb/vkoltse_a"  # put here the same path as in config
+BASE_DIR = ""  # put here the same path as in config
 
 
 def get_config_data(setting):

@@ -5,9 +5,9 @@ from datetime import datetime
 from flask import jsonify, request
 from flask_restful import Resource, abort, reqparse
 
+from config.cfg_handler import get_config_data
 from data.db_session import create_session
 from data.stories import Stories
-from config.cfg_handler import get_config_data
 
 
 def str_to_datetime(

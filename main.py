@@ -9,6 +9,7 @@ from auth.handler import auth_user_view
 from data import db_session
 from data.sessions import Sessions
 from data.users import Users
+from sitemap import sitemap
 from stories_handlers.blueprint import story_blueprint
 
 app = Flask(__name__, template_folder="html", static_folder="static")
@@ -19,6 +20,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 1800,
     "pool_pre_ping": True,
 }
+sitemap.init_app(app)
+app.config["SITEMAP_BLUEPRINT_URL_PREFIX"] = ""
+app.config["SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS"] = False
 
 
 @app.route("/")
