@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Образование в кольце</title>
+
+<meta name="description" content="Историко-образовательный проект о школьниках блокадного Ленинграда">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Образование в кольце">
+<meta property="og:description" content="Цифровой музей памяти школьников блокадного Ленинграда">
+<meta property="og:image" content="og-cover.jpg">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+<style>
+:root{
+--museum-bg:#f7f2ea;
+--museum-paper:#fcfaf6;
+--museum-accent:#8c2030;
+--museum-gold:#a8824b;
+--museum-border:#d8c8af;
+--icon-color: #212529;
+--logo-color:#121212;
+}
+
+[data-bs-theme="dark"]{
+--museum-bg:#121212;
+--museum-paper:#1e1e1e;
+--museum-accent:#c24a5f;
+--museum-gold:#d2ae78;
+--museum-border:#333;
+--icon-color: #ced2d5;
+--logo-color: #DEE2E6;
+}
+
+html, body{
+overflow-x:hidden;
+}
+
+body{
+background: var(--museum-bg);
+position:relative;
+min-height:100vh;
+}
+
+/* 🌄 ФОН
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url('https://picsum.photos/1920/1080?blur=2') center/cover no-repeat;
+opacity:.12;
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.25);
+z-index:-1;
+} */
+
+/* UI */
+.navbar-scrolled{backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.hero{padding:90px 0}
+
+.museum-card,.stat-card,.partner-card{
+background:var(--museum-paper);
+border:1px solid var(--museum-border);
+border-radius:18px;
+}
+
+.stat-card, .partner-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.section-title{font-weight:700;margin-bottom:2rem}
+
+footer{border-top:1px solid var(--museum-border)}
+
+/* MOBILE FIX */
+.offcanvas{
+width:100% !important;
+}
+
+img{
+max-width:100%;
+height:auto;
+}
+
+.footer-icon path{
+fill:var(--logo-color);
+}
+
+.footer-icon {
+width: 24px;
+height: 24px;
+}
+
+.logo{
+  fill:var(--icon-color);
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary">
+<div class="container">
+<a class="navbar-brand d-flex align-items-center gap-2" href="#">
+<img src="{{ url_for('static', filename='img/logoblackonlyarch.svg') }}" width="50" alt="Логотип проекта Образование в кольце" class="logo">
+<span class="project-title d-none d-lg-inline fw-bold">Образование в кольце</span>
+</a>
+
+<button class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="d-none d-lg-flex ms-auto gap-3 align-items-center">
+<a class="nav-link" href="#">Новости</a>
+<a class="nav-link" href="#">Истории</a>
+<a class="nav-link" href="#">О проекте</a>
+<button id="themeToggle" class="btn btn-outline-secondary" aria-label="Сменить тему">
+<i class="bi bi-moon-stars-fill"></i>
+</button>
+<button class="btn btn-dark">Войти</button>
+</div>
+</div>
+</nav>
+
+<!-- MOBILE MENU FIX -->
+<div class="offcanvas offcanvas-end" id="mobileMenu">
+<div class="offcanvas-header">
+<h5>Меню</h5>
+<button class="btn-close" data-bs-dismiss="offcanvas"></button>
+</div>
+
+<div class="offcanvas-body d-flex flex-column gap-3">
+<a class="btn btn-outline-secondary">Новости</a>
+<a class="btn btn-outline-secondary">Истории</a>
+<a class="btn btn-outline-secondary">История месяца</a>
+<a class="btn btn-outline-secondary">Партнёры</a>
+
+<hr>
+
+<button class="btn btn-dark w-100">Войти</button>
+</div>
+</div>
+
+<main>
+
+<section class="hero">
+<div class="container">
+<div class="row align-items-center g-5">
+
+<div class="col-lg-7" data-aos="fade-right">
+<img src="https://picsum.photos/1200/700" class="img-fluid rounded-4" alt="Экспозиция проекта">
+</div>
+
+<div class="col-lg-5" data-aos="fade-left">
+<div class="text-uppercase text-secondary">Цифровой музей памяти</div>
+<h1 class="display-4 fw-bold">Образование в кольце</h1>
+<p>Истории школьников блокадного Ленинграда, сохранённые для будущих поколений.</p>
+
+<!-- 🔥 STAT FIX -->
+<div class="row g-3">
+<div class="col-6">
+<div class="stat-card p-3 text-center">
+<h3>1264</h3>
+<div>Историй</div>
+</div>
+</div>
+
+<div class="col-6">
+<div class="stat-card p-3 text-center">
+<h3>7 часов назад</h3>
+<div>Опубликована история</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="container mb-5">
+<div class="museum-card p-4">
+<h2 class="section-title">Поиск по историям</h2>
+<div class="row g-3">
+<div class="col-lg-6"><input class="form-control" placeholder="Фамилия, школа, класс"></div>
+<div class="col-lg-2"><select class="form-select"><option>Год</option></select></div>
+<div class="col-lg-2"><select class="form-select"><option>Школа</option></select></div>
+<div class="col-lg-2"><button class="btn btn-dark w-100">Найти</button></div>
+</div>
+</div>
+</section>
+
+<section class="container mb-5">
+<h2 class="section-title">История месяца</h2>
+
+<div class="story-month p-4" data-aos="fade-right">
+<div class="row align-items-center">
+<div class="col-lg-4">
+<img src="https://picsum.photos/500/500" class="img-fluid rounded-4" alt="История месяца">
+</div>
+
+<div class="col-lg-8">
+<h3>Мария Ивановна Петрова</h3>
+<p>Ученица школы №239. Продолжала обучение в тяжёлые годы блокады.</p>
+<button class="btn btn-dark">Читать полностью</button>
+</div>
+</div>
+</div>
+</section>
+
+<section class="container mb-5">
+<h2 class="section-title">Последние новости</h2>
+<div class="row g-4">
+
+<div class="col-md-4">
+<div class="museum-card p-3">
+<h5>Новая экспозиция</h5>
+<small>15.05.2026</small>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="museum-card p-3">
+<h5>Встреча поколений</h5>
+<small>08.05.2026</small>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="museum-card p-3">
+<h5>Новые архивы</h5>
+<small>02.05.2026</small>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- 🧩 PARTNERS WITH LOGOS -->
+<section class="container mb-5">
+<h2 class="section-title">Партнёры проекта</h2>
+
+<div class="row g-3 text-center">
+
+<div class="col-6 col-md-3">
+<div class="partner-card p-3">
+<img src="https://picsum.photos/120?1" alt="Лицей 393" class="img-fluid mb-2">
+<div>Лицей №393</div>
+</div>
+</div>
+
+<div class="col-6 col-md-3">
+<div class="partner-card p-3">
+<img src="https://picsum.photos/120?2" alt="Школьный музей" class="img-fluid mb-2">
+<div>Школьный музей</div>
+</div>
+</div>
+
+<div class="col-6 col-md-3">
+<div class="partner-card p-3">
+<img src="https://picsum.photos/120?3" alt="Архив Санкт-Петербурга" class="img-fluid mb-2">
+<div>Архив СПб</div>
+</div>
+</div>
+
+<div class="col-6 col-md-3">
+<div class="partner-card p-3">
+<img src="https://picsum.photos/120?4" class="img-fluid mb-2" alt="Комитет образования">
+<div>Комитет образования</div>
+</div>
+</div>
+
+</div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+
+<footer class="py-5">
+
+<div class="container">
+
+<div class="row g-4">
+
+<div class="col-lg-4">
+
+<div class="d-flex align-items-center gap-3 mb-3">
+
+<img src="{{ url_for('static', filename='img/logoblackonlyarch.svg') }}"
+     class="footer-logo"
+     width="50"
+     alt="Логотип проекта">
+
+<div>
+
+<strong>Образование в кольце</strong>
+
+</div>
+
+</div>
+
+<div class="text-secondary">
+© 2026 Образование в кольце
+<br>
+Все права защищены
+</div>
+
+</div>
+
+<div class="col-lg-4">
+
+<h5>Полезные ссылки</h5>
+
+<ul class="list-unstyled">
+
+<li><a href="#" class="link-secondary link-offset-2-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">О проекте</a></li>
+<li><a href="#" class="link-secondary link-offset-2-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Карта сайта</a></li>
+<li><a href="#" class="link-secondary link-offset-2-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Документы</a></li>
+<li><a href="#" class="link-secondary link-offset-2-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Политика конфиденциальности</a></li>
+
+</ul>
+
+</div>
+
+<div class="col-lg-4">
+
+<h5>Контакты</h5>
+
+<div class="d-flex gap-3 mb-3">
+
+<a href="#" class="social-link d-block footer-icon">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M11.7333 2.26667C5.93889 2.56944 2.11389 7.11389 2.35556 12.8444C2.46111 15.3528 3.46944 17.5111 3.70833 19.8917C3.76944 20.5083 3.59167 21.2694 4.30278 21.5389C5.17778 21.8694 6.51944 21.3139 7.25278 20.8056C7.50278 20.6361 7.74167 20.4389 7.925 20.1944C8.68333 20.6972 9.40278 21.1833 10.3056 21.4C14.2806 22.3528 18.6361 20.1722 20.5722 16.6694C24.2111 10.0889 19.2917 1.87222 11.7333 2.26667ZM9.48333 16C9.16944 16.2444 8.86667 16.5778 8.51944 16.7694C8.01667 17.0389 7.86111 16.7583 7.67222 16.3139C7.07778 14.9 7.00556 12.4917 7.35278 11.0111C7.81944 8.99722 9.37778 7.225 11.5194 7.03611C13.6861 6.84444 15.6972 7.94444 16.6056 9.93056C18.6167 14.35 13.4694 18.7139 9.48333 16.0028V16Z" fill="currentColor"/>
+</svg>
+</a>
+
+<a href="#" class="social-link d-block footer-icon"">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 2C6.47581 2 2 6.47581 2 12C2 17.5242 6.47581 22 12 22C17.5242 22 22 17.5242 22 12C22 6.47581 17.5242 2 12 2ZM16.6371 8.80242C16.4879 10.3831 15.8347 14.2218 15.504 15.9919C15.3629 16.7419 15.0887 16.9919 14.8226 17.0161C14.2419 17.0685 13.8024 16.6331 13.2379 16.2621C12.3589 15.6855 11.8589 15.3266 11.0081 14.7621C10.0202 14.1129 10.6613 13.754 11.2218 13.1694C11.371 13.0161 13.9274 10.6895 13.9758 10.4798C13.9839 10.4516 13.9879 10.3548 13.9274 10.3024C13.8669 10.25 13.7823 10.2702 13.7218 10.2823C13.6331 10.3024 12.2258 11.2298 9.50403 13.0685C9.10484 13.3427 8.74194 13.4758 8.41935 13.4677C8.06048 13.4597 7.375 13.2661 6.8629 13.1008C6.2379 12.8992 5.7379 12.7903 5.78226 12.4435C5.80645 12.2621 6.05242 12.0806 6.52419 11.8911C9.43952 10.621 11.3831 9.78226 12.3548 9.37903C15.1331 8.22581 15.7097 8.02419 16.0847 8.01613C16.1694 8.01613 16.3508 8.03629 16.4718 8.13306C16.5524 8.20161 16.6008 8.29839 16.6129 8.40323C16.6331 8.53226 16.6371 8.66532 16.629 8.79839L16.6371 8.80242Z" fill="currentColor"/>
+</svg>
+</a>
+
+<a href="#" class="social-link d-block footer-icon"">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M3.57812 3.57813C2.2 4.95625 2.2 7.17438 2.2 11.6063V12.3938C2.2 16.8256 2.2 19.0437 3.57812 20.4219C4.95625 21.8 7.17437 21.8 11.6062 21.8H12.3894C16.8256 21.8 19.0437 21.8 20.4175 20.4219C21.7912 19.0437 21.8 16.8256 21.8 12.3938V11.6106C21.8 7.17438 21.8 4.95625 20.4219 3.5825C19.0437 2.20875 16.8256 2.2 12.3937 2.2H11.6062C7.17437 2.2 4.95625 2.2 3.57812 3.57813ZM5.5075 8.16313H7.74312C7.8175 11.9038 9.46687 13.4875 10.775 13.8156V8.16313H12.8837V11.3875C14.1744 11.2475 15.5306 9.7775 15.9856 8.16313H18.0944C17.9237 9.00313 17.5781 9.795 17.0837 10.495C16.5894 11.195 15.9594 11.7856 15.2244 12.2275C16.0425 12.6344 16.7644 13.2075 17.3419 13.9119C17.9194 14.6163 18.3437 15.4388 18.58 16.3181H16.2612C16.0469 15.5525 15.6137 14.87 15.01 14.3494C14.4062 13.8288 13.6669 13.5006 12.8794 13.4044V16.3181H12.6256C8.15875 16.3181 5.6125 13.2556 5.50312 8.15875L5.5075 8.16313Z" fill="currentColor"/>
+</svg>
+</a>
+
+</div>
+
+<a href="mailto:support@vkoltse.ru" class="link-secondary link-offset-2-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+support@vkoltse.ru
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="https://kit.fontawesome.com/88004060de.js" crossorigin="anonymous"></script>
+
+<script>
+AOS.init({once:true,duration:700});
+
+$(window).on('scroll',function(){
+$('.navbar').toggleClass('navbar-scrolled',$(window).scrollTop()>50);
+});
+
+$(function(){
+const html=document.documentElement;
+const saved=localStorage.getItem('theme');
+if(saved) html.setAttribute('data-bs-theme',saved);
+
+$('#themeToggle').on('click',function(){
+const next=html.getAttribute('data-bs-theme')==='dark'?'light':'dark';
+html.setAttribute('data-bs-theme',next);
+localStorage.setItem('theme',next);
+});
+});
+</script>
+
+</body>
+</html>
