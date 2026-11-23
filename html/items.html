@@ -1,0 +1,24 @@
+{% macro story_date(story) -%}
+    {% if story.publication %}
+        <time datetime="{{ story.publication.published_at.isoformat() }}">{{ story.publication.published_at.strftime('%d.%m.%Y') }}</time>
+    {% else %}
+        Дата публикации не указана
+    {% endif %}
+{%- endmacro %}
+
+{% macro preview(item, path) %}
+    <article class="border-top py-3 position-relative">
+        <p class="small text-body-secondary mb-2">
+            {% if path == '/story' %}
+                {{ story_date(item) }}
+            {% else %}
+                <time datetime="{{ item.date.isoformat() }}">{{ item.date.strftime('%d.%m.%Y') }}</time>
+                {% if item.user %} · {{ item.user.login }}{% endif %}
+            {% endif %}
+        </p>
+        <h3 class="h4">
+            <a class="stretched-link link-light text-decoration-none" href="{{ path }}{{ '#story-' if path == '/story' else '/' }}{{ item.id }}">{{ item.title }}</a>
+        </h3>
+        <p class="text-body-secondary mb-0">{{ (item.content if item.content is string else item.content|join(' '))|truncate(155) }}</p>
+    </article>
+{% endmacro %}

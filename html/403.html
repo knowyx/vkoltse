@@ -1,9 +1,10 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 
 {% block content %}
-    <div class="divcenter">
-        <h1 class="critical">403. Forbidden</h1>
-        <h2>Доступ запрещен. {{ msg }}</h2>
-        <a href="/"><button type="button" class="btn btn-warning">Вернуться на главную</button></a>
-    </div>
+    <section class="reading mx-auto border-top py-4">
+        <p class="kicker">Ошибка 403</p>
+        <h1>Доступ ограничен</h1>
+        <p class="my-4">{{ msg }}</p>
+        <a class="btn btn-primary" href="/">На главную →</a>
+    </section>
 {% endblock %}

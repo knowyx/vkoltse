@@ -1,36 +1,13 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
+{% from "items.html" import preview %}
 
 {% block content %}
-    <h1>Новости</h1>
-    <p>Нажмите на публикацию, чтобы ознакомится с ней подробнее</p>
-    <hr>
-    {% if news and news|length > 0 %}
-
-    {% for publication in news %}
-    <a href="/news/{{publication.id}}" style="text-decoration: none; color: inherit;">
-        <div class="publication">
-            <h3>{{ publication.title or "Без названия" }}</h3>
-
-            <div class="meta">
-                Автор:
-                {{ publication.user.login if publication.user else "Неизвестно" }}
-                <br>
-                Дата:
-                {% if publication.date %}
-                {{ publication.date.strftime("%Y-%m-%d %H:%M") }}
-                {% else %}
-                Нет даты
-                {% endif %}
-            </div>
-            <div class="long-text">
-                {{ " ".join(publication.content) }}
-            </div>
-        </div>
-    </a>
-    <hr>
-    {% endfor %}
-
-    {% else %}
-    <p>Новостей пока нет</p>
-    {% endif %}
+    <section class="reading mx-auto">
+        <h1 class="mb-4">Новости проекта</h1>
+        {% for item in news %}
+            {{ preview(item, '/news') }}
+        {% else %}
+            <p class="border-top py-4 text-body-secondary">Новостей пока нет.</p>
+        {% endfor %}
+    </section>
 {% endblock %}

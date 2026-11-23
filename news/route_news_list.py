@@ -19,7 +19,7 @@ def news_list():
         return redirect("/auth/logout")
     try:
         db_session = db_sess.create_session()
-        news = db_session.query(News).all()
+        news = db_session.query(News).order_by(News.date.desc(), News.id.desc()).all()
         return render_template(
             "news_list.html", user=user, pagename="Новости", news=news
         )

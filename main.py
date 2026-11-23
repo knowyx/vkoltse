@@ -3,10 +3,16 @@ and runs the app (without using a gunicorn (for develop purposes))"""
 
 from flask import Flask, redirect, render_template, request
 
+from sqlalchemy import func
+
 from api.__init__api import init_api
 from auth import __init__auth
 from auth.handler import auth_user_view
+from cabinet.blueprint import cabinet_blueprint
+from news.blueprint import news_blueprint
 from data import db_session
+from data.news import News
+from data.stories import Stories, StoryPublication
 from data.sessions import Sessions
 from data.users import Users
 from sitemap import sitemap
@@ -33,7 +39,25 @@ def index():
     user = auth_user_view(db_session, Users, Sessions)
     if user == "Remove_cookie":
         return redirect("/auth/logout")
-    return render_template("index.html", pagename="Главная", user=user)
+    with db_session.create_session() as session:
+        approved = session.query(Stories).filter(Stories.checked.is_(True))
+        stories = (
+            approved.outerjoin(Stories.publication)
+            .order_by(func.coalesce(StoryPublication.published_at, Stories.date).desc(), Stories.id.desc())
+            .limit(3)
+            .all()
+        )
+        news = session.query(News).order_by(News.date.desc(), News.id.desc()).limit(3).all()
+        frame = request.args.get("photo", 1, type=int)
+        return render_template(
+            "index.html",
+            pagename="Главная",
+            user=user,
+            stories=stories,
+            news=news,
+            story_count=approved.count(),
+            frame=frame if frame in (1, 2, 3) else 1,
+        )
 
 
 @app.route("/about")
@@ -76,6 +100,8 @@ def main():
     app.register_blueprint(__init__auth.blueprint)
     init_api(app)
     app.register_blueprint(story_blueprint)
+    app.register_blueprint(news_blueprint)
+    app.register_blueprint(cabinet_blueprint)
     app.run(port=8080, host="127.0.0.1")
 
 

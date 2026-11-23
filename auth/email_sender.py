@@ -3,12 +3,13 @@ sending password reset emails and email confirmation emails, it uses the smtplib
 library to send emails through an SMTP server, it also uses the email.mime
 library to create email messages with HTML content"""
 
+import logging
 import os
 import smtplib
+import ssl
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from ssl import SSLError
 
 from config.cfg_handler import get_config_data
 
@@ -20,17 +21,25 @@ BASE_DIR = get_config_data("base-dir")
 
 def sent_mail(message, address, password):
     """Function send email to an email address of recipient or print error"""
+    stage = "connection"
     try:
-        with smtplib.SMTP_SSL(SERVER, PORT) as server:
+        with smtplib.SMTP_SSL(
+            SERVER, PORT, timeout=8, context=ssl.create_default_context()
+        ) as server:
+            stage = "authentication"
             server.login(address, password)
+            stage = "submission"
             server.send_message(message)
-            print("Письмо успешно отправлено!")
             return True
-    except (smtplib.SMTPException, OSError, SSLError):
+    except (smtplib.SMTPException, OSError) as error:
+        logging.getLogger(__name__).warning(
+            "SMTP %s:%s failed during %s (%s, SMTP code %s)",
+            SERVER, PORT, stage, type(error).__name__, getattr(error, "smtp_code", None),
+        )
         return False
 
 
-def build_mail(sender_email, subject, mail_content, reciver):
+def build_mail(sender_email, subject, mail_content, reciver, plain_text):
     """Function to build mail structure with content"""
     try:
         message = MIMEMultipart("related")
@@ -51,7 +60,7 @@ def build_mail(sender_email, subject, mail_content, reciver):
             custom_content=mail_content,
         )
 
-        alt.attach(MIMEText("Текст письма", "plain"))
+        alt.attach(MIMEText(plain_text, "plain", "utf-8"))
         alt.attach(MIMEText(text, "html"))
 
         with open(os.path.join(BASE_DIR, "static/img/logo1000.png"), mode="rb") as f:

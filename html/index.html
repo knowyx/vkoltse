@@ -1,40 +1,95 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
+{% from "items.html" import preview, story_date %}
+{% block spacing %}pt-4 pb-5{% endblock %}
 
 {% block content %}
-    <div class="divcenter"><h1 class="display-1">Образование в кольце</h1></div>
-    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    {% set photos = [
+        ('slide1_new.jpg', 'Школьный урок в блокаду', 'Ленинград, декабрь 1942'),
+        ('slide2_new.jpg', 'Занятия школьников младших классов в бомбоубежище', 'Ленинград, октябрь 1941'),
+        ('slide3_new.jpg', 'Дети наблюдают за самолетами', 'Ленинград, зима 1942/1943')
+    ] %}
+    {% set photo = photos[frame - 1] %}
+    <section class="hero position-relative overflow-hidden border" aria-labelledby="hero-title">
+        <img class="hero-photo" src="/static/img/{{ photo[0] }}" alt="{{ photo[1] }}">
+        <div class="hero-copy position-relative">
+            <p class="kicker"><span class="ribbon"></span> Архив школьной памяти</p>
+            <h1 id="hero-title">Образование<br><em>в кольце</em></h1>
+            <p class="intro">Школьная жизнь блокадного Ленинграда<br class="d-none d-md-inline"> в воспоминаниях учеников и учителей.</p>
+            <a class="btn btn-primary" href="/story">Читать истории <span aria-hidden="true">→</span></a>
         </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-            <img src="{{ url_for('static', filename='img/slide1.png') }}" class="d-block w-100" alt="...">
+        <div class="photo-control d-flex align-items-end justify-content-between gap-3">
+            <div class="small">
+                <a href="/about#sources">{{ photo[1] }}</a><br>
+                <span>{{ photo[2] }}</span>
             </div>
-            <div class="carousel-item">
-            <img src="{{ url_for('static', filename='img/slide2.png') }}" class="d-block w-100" alt="...">
-            </div>
-            <div class="carousel-item">
-            <img src="{{ url_for('static', filename='img/slide3.png') }}" class="d-block w-100" alt="...">
-            </div>
+            <nav class="photo-nav d-flex align-items-center gap-2" aria-label="Архивные фотографии">
+                <a href="?photo={{ (frame + 1) % 3 + 1 }}" aria-label="Предыдущее фото">←</a>
+                <span>0{{ frame }} / 03</span>
+                <a href="?photo={{ frame % 3 + 1 }}" aria-label="Следующее фото">→</a>
+            </nav>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
+    </section>
+    <div class="archive-strip d-flex flex-wrap align-items-center justify-content-between gap-3 border border-top-0 px-4 py-3">
+        <span><span class="text-body-secondary">Историй в архиве</span> <b>{{ story_count }}</b></span>
+        <span class="small">Последняя история <span class="text-body-secondary">/</span>
+            {% if stories %}
+                <a href="/story#story-{{ stories[0].id }}">{{ story_date(stories[0]) }}</a>
+            {% else %}
+                <span class="text-body-secondary">Публикаций пока нет</span>
+            {% endif %}
+        </span>
     </div>
-    <span style="font-weight: bold;">«Образование в кольце»</span><span> — это уникальное интерактивное пространство в лицее 393, благодаря которому новые поколения школьников и их родителей узнают больше фактов из школьной жизни блокадного Ленинграда, а также могут стать частью истории, предоставив биографии своих родственников, которые учились в блокадном Ленинграде.</span><br>
-    <span style="display: flex; align-items: center;"><img src="{{ url_for('static', filename='img/393logo.webp') }}" alt="Логотип лицея №393" width="30%" height="30%" style="min-width: 140px; min-height: 140px; vertical-align: middle;" alli>
-        <div style="margin-left: 5%;">
-            <p style="margin-bottom: 1%;">Вы можете узнать дополнительную информацию про интерактивное пространство, а также отправить сведения о своих родных, которые учились или работали в системе образования в период блокады Ленинграда.<br>
-            <a href="/about"><button type="button" class="btn btn-primary" style="margin: 1%; margin-left: 0px;">Узнать больше о проекте</button></a>
-            <a href="/story/submit"><button type="button" class="btn btn-primary" style="margin: 1%; margin-left: 0px;">Подать историю (необходима авторизация)</button></a>
+    <section class="py-5">
+        <div class="section-head">
+            <h2>Материалы архива</h2>
+            <a href="/about">О проекте ↗︎</a>
         </div>
-    </span>
-
+        <div class="row g-3">
+            {% for file, heading, link, label in [
+                ('map_reconstructed_preview.webp', 'План Ленинграда', 'map', 'Картография'),
+                ('school52.jpg', 'Школы Ленинграда', 'schools', 'Образование'),
+                ('slide2.png', 'Люди проекта', 'team', 'Лицей № 393')
+            ] %}
+                <div class="col-md-4">
+                    <a class="material d-block position-relative overflow-hidden border" href="/about#{{ link }}">
+                        <img src="/static/img/{{ file }}" alt="" class="w-100 h-100 object-fit-cover">
+                        <div class="material-label">
+                            <small class="kicker">{{ label }}</small>
+                            <span class="d-flex justify-content-between align-items-center">{{ heading }} <small>↗︎</small></span>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    <div class="row g-5 pb-5">
+        {% for items, title, path, action in [(stories, 'Последние истории', '/story', 'Все истории'), (news, 'Последние новости', '/news', 'Все новости')] %}
+            <section class="col-lg-6">
+                <div class="section-head">
+                    <h2>{{ title }}</h2>
+                    <a class="btn btn-outline-light btn-sm" href="{{ path }}">{{ action }} →</a>
+                </div>
+                {% for item in items %}
+                    {{ preview(item, path) }}
+                {% else %}
+                    <p class="text-body-secondary">Пока нет опубликованных {{ 'новостей' if path == '/news' else 'историй' }}.</p>
+                {% endfor %}
+                {% if path == '/story' %}
+                    <a class="btn btn-primary mt-2" href="/story/submit">Подать историю →</a>
+                {% endif %}
+            </section>
+        {% endfor %}
+    </div>
+    <section class="row g-0 border archive-strip align-items-stretch">
+        <div class="col-md-5 p-4 p-lg-5">
+            <p class="kicker">Контакты</p>
+            <h2>Лицей № 393</h2>
+            <address>Санкт-Петербург, Автовская улица, 5</address>
+            <p><a href="https://yandex.ru/maps/org/litsey_393/126942068779/">Открыть в Яндекс Картах ↗︎</a></p>
+            <a class="btn btn-outline-light" href="{{ max_url }}">Связаться в MAX ↗︎</a>
+        </div>
+        <div class="col-md-7 d-flex align-items-center justify-content-center p-3">
+            <iframe class="contact-map d-block w-100 border-0" height="290" title="Лицей № 393 на Яндекс Картах" src="https://yandex.ru/map-widget/v1/?mode=search&amp;oid=126942068779&amp;ol=biz&amp;z=16" loading="lazy"></iframe>
+        </div>
+    </section>
 {% endblock %}

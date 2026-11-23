@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <section class="form-panel border p-4 p-md-5">
+        <h1 class="display-5 mb-3">{% block heading %}{% endblock %}</h1>
+        {% block introduction %}{% endblock %}
+        <form method="post"{% if form.cover is defined %} enctype="multipart/form-data"{% endif %} novalidate>
+            {{ form.hidden_tag() }}
+            {% for field in form if field.type not in ['CSRFTokenField', 'HiddenField', 'SubmitField'] %}
+                <div class="mb-3">
+                    {{ field.label(class="form-label") }}
+                    {% if field.type == 'TextAreaField' %}
+                        {{ field(class="form-control", rows=9) }}
+                    {% elif field.name == 'code' %}
+                        {{ field(class="form-control", min=100000, max=999999) }}
+                    {% else %}
+                        {{ field(class="form-control") }}
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="text-danger-emphasis small mt-1" role="alert">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            {% if form.repeat_password is defined %}
+                <p class="text-body-secondary small">Минимум 8 символов. Используйте строчные и заглавные латинские буквы, цифру и один из символов <code>!@#$%^&amp;*()_+-?=</code>.</p>
+            {% endif %}
+            {% if yandex_captcha_data_sitekey is defined %}
+                <script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
+                <div class="captcha-frame overflow-hidden mb-3">
+                    <div class="smart-captcha" data-hl="ru" data-sitekey="{{ yandex_captcha_data_sitekey }}"></div>
+                </div>
+            {% endif %}
+            {% if err == 'captcha' %}
+                <p class="alert alert-danger" role="alert">Не удалось пройти проверку. Попробуйте ещё раз.</p>
+            {% elif err == 'invcreds' %}
+                <p class="alert alert-danger" role="alert">Неверный адрес электронной почты или пароль.</p>
+            {% elif err == 'smtp' %}
+                <p class="alert alert-danger" role="alert">Не удалось отправить письмо через почтовый сервер. Попробуйте ещё раз позже.</p>
+            {% elif err == 'build' %}
+                <p class="alert alert-danger" role="alert">Не удалось подготовить письмо. Обратитесь в поддержку.</p>
+            {% endif %}
+            {% for error in form.submit.errors %}
+                <p class="alert alert-danger" role="alert">{{ error }}</p>
+            {% endfor %}
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+        {% block related %}{% endblock %}
+    </section>
+{% endblock %}

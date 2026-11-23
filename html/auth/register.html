@@ -1,60 +1,9 @@
-{% extends "base.html" %}
+{% extends "form_page.html" %}
 
-{% block content %}
-<script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
-<h1>Регистрация</h1>
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.username.label }}<br>
-        {{ form.username(class="form-control") }}<br>
-        {% for error in form.username.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(class="form-control", type="email") }}<br>
-        {% for error in form.email.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(class="form-control", type="password") }}<br>
-        {% for error in form.password.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-        {{ form.repeat_password.label }}<br>
-        {{ form.repeat_password(class="form-control", type="password") }}<br>
-        {% for error in form.repeat_password.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <div id="captcha-container" class="smart-captcha" data-sitekey="{{yandex_captcha_data_sitekey}}" style="height: 100px; margin-bottom: 20px"></div>
-    {% if err == "captcha" %}
-        <div class="alert alert-danger" role="alert">
-            Капча не была пройдена или произошла ошибка при проверке.
-        </div>
-    {% endif %}
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    <p>Пароль должен:</p>
-    <ul>
-        <li>быть длинной от 8 символов</li>
-        <li>содрежать хотя-бы одну заглавную латинскую букву</li>
-        <li>содрежать хотя-бы одну строчную латинскую букву</li>
-        <li>содрежать хотя-бы одну цифру</li>
-        <li>содрежать хотя-бы один символ из набора: !@#$%^&*()_+-?=</li>
-    </ul>
-</form>
-<div>Уже есть аккаунт?<a href="/auth/login" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Войти</button></a></div>
+{% block heading %}Регистрация{% endblock %}
+
+{% block related %}
+    <nav class="border-top mt-4 pt-3 d-flex gap-3 flex-wrap" aria-label="Действия с аккаунтом">
+        <a href="/auth/login">Уже есть аккаунт? Войти</a>
+    </nav>
 {% endblock %}

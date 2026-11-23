@@ -102,7 +102,7 @@ class StoriesResource(Resource):
         story.author_id = args["author_id"]
         story.review_authors_id = args["review_authors_id"]
         story.date = args["date"]
-        story.checked = args["checked"]
+        story.set_published(args["checked"])
 
         session.commit()
         return jsonify({"story": "Ok"})
@@ -190,8 +190,8 @@ class StoriesListResource(Resource):
             author_id=args["author_id"],
             review_authors_id=args["review_authors_id"],
             date=args["date"],
-            checked=args["checked"],
         )
+        story.set_published(args["checked"])
         session.add(story)
         session.commit()
         return jsonify({"id": story.id}), 201

@@ -5,8 +5,8 @@ information by session key, creating and checking email tokens for password rese
 and email confirmation, and confirming users by email token"""
 
 import os
-import threading
 from datetime import datetime, timedelta
+from html import escape
 from secrets import SystemRandom, token_urlsafe
 
 from flask import request
@@ -156,7 +156,7 @@ def auth_user_view(db_session, user_class, session_class):
     else:
         confirm_link = ""
     return dropout.format(
-        user_login=user.login, admin_link=admin_link, confirm_link=confirm_link
+        user_login=escape(user.login), admin_link=admin_link, confirm_link=confirm_link
     )
 
 
@@ -170,16 +170,12 @@ def have_tokens_in_interval_email(
         token = (
             active_sess.query(email_tokens_class)
             .filter(
-                email_tokens_class.user_id == user.id, email_tokens_class.type == typ
+                email_tokens_class.user_id == user.id, email_tokens_class.type == typ,
+                email_tokens_class.sent_date >= datetime.now() - timedelta(minutes=10),
             )
             .first()
         )
-        try:
-            if token.sent_date + timedelta(minutes=10) < datetime.now():
-                return False
-            return True
-        except AttributeError:
-            return False
+        return token is not None
 
 
 def get_token_data(db_session, url_key, email_tokens_class):
@@ -193,18 +189,37 @@ def get_token_data(db_session, url_key, email_tokens_class):
         return token
 
 
+def _send_token(active_sess, token, message, mailbox):
+    if message is None:
+        return -1
+    active_sess.add(token)
+    active_sess.flush()
+    token_id, user_id, kind = token.id, token.user_id, token.type
+    active_sess.commit()
+
+    token_class = type(token)
+    tokens = active_sess.query(token_class)
+    if not sent_mail(message, **mailbox):
+        tokens.filter(token_class.id == token_id).delete()
+        active_sess.commit()
+        return -2
+
+    tokens.filter(
+        token_class.user_id == user_id, token_class.type == kind, token_class.id < token_id
+    ).delete()
+    active_sess.commit()
+    return 0
+
+
 def create_resetpass_key(reciver_email, db_session, user_class, email_tokens_class):
     """Function to create key for reset password, add it to database and sent mail with code
     (open connection here)"""
     with db_session.create_session() as active_sess:
         user = (
             active_sess.query(user_class)
-            .filter(user_class.email == reciver_email and email_tokens_class.type == 0)
+            .filter(user_class.email == reciver_email)
             .first()
         )
-        active_sess.query(email_tokens_class).filter(
-            email_tokens_class.user_id == user.id
-        ).delete()
         email_token = email_tokens_class()
         email_token.url_key = token_urlsafe(32)
         email_token.email_key = SystemRandom().randint(100000, 999999)
@@ -218,20 +233,12 @@ def create_resetpass_key(reciver_email, db_session, user_class, email_tokens_cla
         )
         subject = "Восстановление пароля"
         message = build_mail(
-            MAILBOXES["reset_password"]["address"], subject, mail_content, reciver_email
+            MAILBOXES["reset_password"]["address"], subject, mail_content, reciver_email,
+            f"Код для восстановления пароля: {email_token.email_key}",
         )
-        if message is None:
-            return -1
-        threading.Thread(
-            target=sent_mail,
-            args=(message,),
-            kwargs=MAILBOXES["reset_password"],
-            daemon=True,
-        ).start()
-
-        active_sess.add(email_token)
-        active_sess.commit()
-        return email_token.url_key
+        key = email_token.url_key
+        result = _send_token(active_sess, email_token, message, MAILBOXES["reset_password"])
+        return key if result == 0 else result
 
 
 def get_user_info_by_session(db_session, session_key, user_class, session_class):
@@ -254,35 +261,19 @@ def get_user_info_by_session(db_session, session_key, user_class, session_class)
 def create_confirm_key(user, db_session, email_tokens_class):
     """Fuction to create mail confirm key (link at email) (open connection here)"""
     with db_session.create_session() as active_sess:
-        active_sess.query(email_tokens_class).filter(
-            email_tokens_class.user_id == user.id and email_tokens_class.type == 1
-        ).delete()
         email_token = email_tokens_class()
         email_token.url_key = token_urlsafe(32)
         email_token.user_id = user.id
         email_token.type = 1
         email_token.sent_date = datetime.now()
 
-        mail_content = (
-            "<p>Уважаемый пользователь, для подтверждения аккаунта перейтите по ссылке:"
-            + f"<br>{request.host_url}auth/confirm-mail/confirm?key={email_token.url_key}<br>"
-        )
-        subject = "Подтверждение аккаунта"
+        link = f"{request.host_url}auth/confirm-mail/confirm?key={email_token.url_key}"
+        mail_content = f'<p><a href="{escape(link)}">Подтвердить почту</a></p>'
         message = build_mail(
-            MAILBOXES["confirm_account"]["address"], subject, mail_content, user.email
+            MAILBOXES["confirm_account"]["address"], "Подтверждение аккаунта", mail_content,
+            user.email, f"Для подтверждения аккаунта перейдите по ссылке: {link}",
         )
-        if message is None:
-            return -1
-        threading.Thread(
-            target=sent_mail,
-            args=(message,),
-            kwargs=MAILBOXES["confirm_account"],
-            daemon=True,
-        ).start()
-
-        active_sess.add(email_token)
-        active_sess.commit()
-        return 0
+        return _send_token(active_sess, email_token, message, MAILBOXES["confirm_account"])
 
 
 def check_email_code(db_session, code, url_key, email_tokens_class):

@@ -1,30 +1,7 @@
-{% extends "base.html"%}
+{% extends "form_page.html" %}
 
-{% block content %}
-<script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
-<div class="divcenter">
-    <h1>Для продолжения работы подтвердите почту!</h1>
-    <p>Уважаемый(ая) {{username}}, для продолжения работы подтвердите свой аккаунт. Пройдите капчу, нажмите кнопку и мы отправим на Ваш адрес электронной почты письмо, содержащее ссылку для подтверждения. Для завершения процесса подтверждения перейдите по ней.</p>
-</div>
-<form action="" method="POST" novalidate>
-    {{ form.hidden_tag() }}
-    <div id="captcha-container" class="smart-captcha" data-sitekey="{{yandex_captcha_data_sitekey}}" style="height: 100px; margin-bottom: 20px"></div>
-    {% if err == "captcha" %}
-        <div class="alert alert-danger" role="alert">
-            Капча не была пройдена или произошла ошибка при проверке.
-        </div>
-    {% endif %}
-    {% if err == "build" %}
-        <div class="alert alert-danger" role="alert">
-            Не удалось собрать письмо. Проверьте данные и обратитесь в поддержку.
-        </div>
-    {% endif %}
-    <p><div class="divcenter" style="margin-bottom: 1%;">{{ form.submit(type="submit", class="btn btn-primary") }}</div>
-        {% for error in form.submit.errors %}
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
-        {% endfor %}
-    </p>
-</form>
+{% block heading %}Подтверждение почты{% endblock %}
+
+{% block introduction %}
+    <p>{{ username }}, пройдите проверку и нажмите «Продолжить». Мы отправим вам письмо со ссылкой для подтверждения аккаунта.</p>
 {% endblock %}

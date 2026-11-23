@@ -1,41 +1,10 @@
-{% extends "base.html" %}
+{% extends "form_page.html" %}
 
-{% block content %}
-<script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
-<h1>Авторизация</h1>
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(class="form-control", type="email") }}<br>
-        {% for error in form.email.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(class="form-control", type="password") }}<br>
-        {% for error in form.password.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <div id="captcha-container" class="smart-captcha" data-sitekey="{{yandex_captcha_data_sitekey}}" style="height: 100px; margin-bottom: 20px"></div>
-    {% if err == "captcha" %}
-        <div class="alert alert-danger" role="alert">
-            Капча не была пройдена или произошла ошибка при проверке.
-        </div>
-    {% endif %}
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    {% if err == "invcreds" %}
-        <div class="alert alert-danger" role="alert">
-            Неверный адрес электронной почты или пароль.
-        </div>
-    {% endif %}
-</form>
-<div>Нет аккаунта?<a href="/auth/register" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Зарегестрироваться</button></a></div>
-<div style="margin-top: 1%;">Забыли пароль?<a href="/auth/forgot-password" style="margin-left: 1%;"><button type="button" class="btn btn-secondary">Сбросить пароль</button></a></div>
+{% block heading %}Вход в аккаунт{% endblock %}
+
+{% block related %}
+    <nav class="border-top mt-4 pt-3 d-flex gap-3 flex-wrap" aria-label="Действия с аккаунтом">
+        <a href="/auth/register">Зарегистрироваться</a>
+        <a href="/auth/forgot-password">Забыли пароль?</a>
+    </nav>
 {% endblock %}

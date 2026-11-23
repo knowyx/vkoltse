@@ -1,6 +1,8 @@
 """Model with base for store stories, review authors and other data for
 displaying and writing stories"""
 
+from datetime import datetime
+
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, orm
 from sqlalchemy_serializer import SerializerMixin
 
@@ -27,3 +29,21 @@ class Stories(SqlAlchemyBase, SerializerMixin):
         "Users", back_populates="review_stories", foreign_keys=[review_authors_id]
     )  # connection with users table for review authors(1 story - a lot of review authors)
     checked = Column(Boolean, nullable=False, default=False)
+
+    publication = orm.relationship(
+        "StoryPublication", uselist=False, cascade="all, delete-orphan"
+    )
+
+    def set_published(self, checked):
+        if checked and not self.checked:
+            self.publication = StoryPublication(published_at=datetime.now())
+        elif not checked:
+            self.publication = None
+        self.checked = bool(checked)
+
+
+class StoryPublication(SqlAlchemyBase):
+    __tablename__ = "story_publications"
+
+    story_id = Column(Integer, ForeignKey("stories.id"), primary_key=True)
+    published_at = Column(DateTime, nullable=False)

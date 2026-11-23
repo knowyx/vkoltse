@@ -66,7 +66,7 @@ def confirm_story(db_session, story_id, story_class, session_class):
         )
         if session is None:
             return False
-        story.checked = 1
+        story.set_published(True)
         story.review_authors_id = session.user_id
         active_sess.commit()
     return True

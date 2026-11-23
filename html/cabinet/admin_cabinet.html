@@ -1,69 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Новости</h1>
-{% if news_success == "1" %}
-<div class="alert alert-success" role="alert">
-    Новость успешно добавлена!
-</div>
-{% endif %}
-<a href="/news/add"><button type="button" class="btn btn-primary">Добавить новость</button></a>
-<a href="/news"><button type="button" class="btn btn-secondary">Перейти в раздел "Новости"</button></a>
-<hr>
-<h1>Проверка историй</h1>
-{% if err == "invalid-id-type" %}
-<div class="alert alert-danger" role="alert">
-    В качестве id были переданы неверные данные: "{{ id }}".
-</div>
-{% endif %}
-{% if err == "invalid-id" %}
-<div class="alert alert-danger" role="alert">
-    История с id "{{ id }}" уже подтверждена или не найдена в базе.
-</div>
-{% endif %}
-{% if success == "1" and err == None %}
-<div class="alert alert-success" role="alert">
-    Успешное подтверждение истории с id "{{ id }}"!
-</div>
-{% endif %}
-{% if success == "-1" and err == None %}
-<div class="alert alert-success" role="alert">
-    История с id "{{ id }}" успешно отклонена.
-</div>
-{% endif %}
-{% if err == "nothing" %}
-<div class="alert alert-danger" role="alert">
-    Произошла неизвестная ошибка.
-</div>
-{% endif %}
-{% if stories and stories|length > 0 %}
-
-{% for story in stories %}
-<div class="story">
-
-    <h3>{{ story.title or "Без названия" }}</h3>
-
-    <div class="meta">
-        Автор:
-        {{ story.author.login if story.author else "Неизвестно" }}
-        <br>
-        Дата:
-        {% if story.date %}
-        {{ story.date.strftime("%Y-%m-%d %H:%M") }}
-        {% else %}
-        Нет даты
+    <section class="reading mx-auto">
+        <h1>Кабинет администратора</h1>
+        <h2 class="mt-5">Новости</h2>
+        {% if news_success == '1' %}
+            <p class="alert alert-success" role="status">Новость опубликована.</p>
         {% endif %}
-    </div>
-    <p>
-        {{ story.content or "" }}
-    </p>
-    <a href="/cabinet/admin/story-change-status?id={{ story.id }}&type=1"><button type="button" class="btn btn-primary">Подтвердить</button></a>
-    <a href="/cabinet/admin/story-change-status?id={{ story.id }}&type=-1"><button type="button" class="btn btn-danger">Отклонить</button></a>
-</div>
-<hr>
-{% endfor %}
-
-{% else %}
-<p>Нет историй, требующих модерации</p>
-{% endif %}
+        <a class="btn btn-primary" href="/news/add">Добавить новость</a>
+        <a class="btn btn-outline-light" href="/news">Все новости</a>
+        <h2 class="border-top mt-5 pt-4">Проверка историй</h2>
+        {% if err == 'invalid-id-type' %}
+            <p class="alert alert-danger" role="alert">Неверный идентификатор «{{ id }}».</p>
+        {% elif err == 'invalid-id' %}
+            <p class="alert alert-danger" role="alert">История № {{ id }} уже проверена или не найдена.</p>
+        {% elif err == 'nothing' %}
+            <p class="alert alert-danger" role="alert">Не удалось обработать запрос.</p>
+        {% elif success in ['1', '-1'] %}
+            <p class="alert alert-success" role="status">История № {{ id }} {{ 'подтверждена' if success == '1' else 'отклонена' }}.</p>
+        {% endif %}
+        {% for story in stories %}
+            <article class="border-top py-3">
+                <h3>{{ story.title }}</h3>
+                <p class="small text-body-secondary">{{ story.author.login if story.author else 'Автор неизвестен' }} · {{ story.date.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p class="prose">{{ story.content }}</p>
+                <a class="btn btn-primary" href="/cabinet/admin/story-change-status?id={{ story.id }}&amp;type=1">Подтвердить</a>
+                <a class="btn btn-outline-danger" href="/cabinet/admin/story-change-status?id={{ story.id }}&amp;type=-1">Отклонить</a>
+            </article>
+        {% else %}
+            <p class="text-body-secondary">Все истории проверены.</p>
+        {% endfor %}
+    </section>
 {% endblock %}

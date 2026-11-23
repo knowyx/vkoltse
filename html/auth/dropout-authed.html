@@ -1,12 +1,8 @@
- <div class="d-flex ms-auto">
-    <div class="btn-group">
-        <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-            {user_login}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-lg-end">
-            {confirm_link}
-            {admin_link}
-            <li><a class="dropdown-item" href="/auth/logout">Выйти</a></li>
-        </ul>
-    </div>
-</div>
+<details class="position-relative">
+    <summary class="btn btn-outline-light btn-sm">{user_login} ▾</summary>
+    <ul class="dropdown-menu dropdown-menu-end d-block end-0">
+        {confirm_link}
+        {admin_link}
+        <li><a class="dropdown-item" href="/auth/logout">Выйти</a></li>
+    </ul>
+</details>

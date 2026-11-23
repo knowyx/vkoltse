@@ -91,7 +91,9 @@ def forgot_password():
             url_key = create_resetpass_key(
                 form.email.data, db_session, Users, EmailTokens
             )
-            if url_key == -1:
+            if url_key == -2:
+                out_path = "/auth/forgot-password?err=smtp"
+            elif url_key == -1:
                 out_path = "/auth/forgot-password?err=build"
             else:
                 out_path = f"/auth/forgot-password/setup?key={url_key}"
@@ -230,6 +232,8 @@ def confirm_mail_sent():
     if form.validate_on_submit():
         if check_captcha(request.form.get("smart-token"), request.remote_addr):
             result = create_confirm_key(user, db_session, EmailTokens)
+            if result == -2:
+                return redirect("/auth/confirm-mail?err=smtp")
             if result == -1:
                 return redirect(redirect_paths[3])
             return render_template(

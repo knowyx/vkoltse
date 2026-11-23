@@ -1,46 +1,28 @@
 {% extends "base.html" %}
-
-{% block title %}Список историй{% endblock %}
+{% from "items.html" import story_date %}
 
 {% block content %}
-
-<h1>Истории</h1>
-{% if success == "1"%}
-<div class="alert alert-success" role="alert">
-    История оправлена на модерацию.
-</div>
-{% endif %}
-<hr>
-{% if stories and stories|length > 0 %}
-
-{% for story in stories %}
-<div class="story">
-
-    <h3>{{ story.title or "Без названия" }}</h3>
-
-    <div class="meta">
-        Автор:
-        {{ story.author.login if story.author else "Неизвестно" }}
-        <br>
-        Проверяющий:
-        {{ story.review_authors.login if story.review_authors else "Не назначен" }}
-        <br>
-        Дата:
-        {% if story.date %}
-        {{ story.date.strftime("%Y-%m-%d %H:%M") }}
-        {% else %}
-        Нет даты
+    <section class="reading mx-auto">
+        <div class="section-head">
+            <h1>Истории</h1>
+            <a class="btn btn-primary" href="/story/submit">Подать историю →</a>
+        </div>
+        <p>Воспоминания об учениках и учителях блокадного Ленинграда.</p>
+        {% if success == "1" %}
+            <p class="alert alert-success" role="status">История отправлена на модерацию.</p>
         {% endif %}
-    </div>
-    <p>
-        {{ story.content or "" }}
-    </p>
-</div>
-<hr>
-{% endfor %}
-
-{% else %}
-<p>Историй пока нет</p>
-{% endif %}
-<a href="/story/submit"><button type="button" class="btn btn-primary">Подать историю</button></a>
+        {% for story in stories %}
+            <article id="story-{{ story.id }}" class="border-top py-4">
+                <p class="text-body-secondary small">{{ story_date(story) }}</p>
+                <h2>{{ story.title }}</h2>
+                <p class="prose">{{ story.content }}</p>
+                <p class="small text-body-secondary">
+                    Автор — {{ story.author.login if story.author else 'неизвестен' }}.
+                    Проверил — {{ story.review_authors.login if story.review_authors else 'не указан' }}.
+                </p>
+            </article>
+        {% else %}
+            <p class="border-top pt-4 text-body-secondary">Пока нет опубликованных историй.</p>
+        {% endfor %}
+    </section>
 {% endblock %}
