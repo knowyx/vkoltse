@@ -66,6 +66,7 @@ h2 { font-size: clamp(2rem, 3.3vw, 2.9rem); }
 .material-label span { font-size: 1.65rem; }
 .material-label small { color: #dde7bd; }
 .material:hover, .material:focus-visible { outline: 2px solid var(--accent); }
+.archive-video { max-width: 52rem; margin: clamp(1.5rem, 4vw, 3rem) auto 0; background: var(--panel); }
 .reading { max-width: 52rem; }
 .form-panel { max-width: 40rem; margin: 0 auto; }
 .captcha-frame { border-radius: 4px; }

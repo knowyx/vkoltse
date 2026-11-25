@@ -29,16 +29,16 @@
             </nav>
         </div>
     </section>
-    <div class="archive-strip d-flex flex-wrap align-items-center justify-content-between gap-3 border border-top-0 px-4 py-3">
-        <span><span class="text-body-secondary">Историй в архиве</span> <b>{{ story_count }}</b></span>
-        <span class="small">Последняя история <span class="text-body-secondary">/</span>
-            {% if stories %}
-                <a href="/story#story-{{ stories[0].id }}">{{ story_date(stories[0]) }}</a>
-            {% else %}
-                <span class="text-body-secondary">Публикаций пока нет</span>
-            {% endif %}
-        </span>
-    </div>
+<!--    <div class="archive-strip d-flex flex-wrap align-items-center justify-content-between gap-3 border border-top-0 px-4 py-3">-->
+<!--        <span><span class="text-body-secondary">Историй в архиве</span> <b>{{ story_count }}</b></span>-->
+<!--        <span class="small">Последняя история <span class="text-body-secondary">/</span>-->
+<!--            {% if stories %}-->
+<!--                <a href="/story#story-{{ stories[0].id }}">{{ story_date(stories[0]) }}</a>-->
+<!--            {% else %}-->
+<!--                <span class="text-body-secondary">Публикаций пока нет</span>-->
+<!--            {% endif %}-->
+<!--        </span>-->
+<!--    </div>-->
     <section class="py-5">
         <div class="section-head">
             <h2>Материалы архива</h2>
@@ -48,7 +48,7 @@
             {% for file, heading, link, label in [
                 ('map_reconstructed_preview.webp', 'План Ленинграда', 'map', 'Картография'),
                 ('school52.jpg', 'Школы Ленинграда', 'schools', 'Образование'),
-                ('slide2.png', 'Люди проекта', 'team', 'Лицей № 393')
+                ('people.png', 'Люди проекта', 'team', 'Лицей № 393')
             ] %}
                 <div class="col-md-4">
                     <a class="material d-block position-relative overflow-hidden border" href="/about#{{ link }}">
@@ -61,6 +61,17 @@
                 </div>
             {% endfor %}
         </div>
+        <figure class="archive-video border">
+            <video class="d-block w-100 h-auto" width="1920" height="1080" controls playsinline preload="metadata" aria-labelledby="archive-video-caption">
+                <source src="{{ url_for('static', filename='vid/6034185062956.mp4') }}" type="video/mp4">
+                <a href="{{ url_for('static', filename='vid/6034185062956.mp4') }}">Открыть видеозапись</a>
+            </video>
+            <figcaption id="archive-video-caption" class="small text-body-secondary border-top px-3 py-2">
+                Воспоминания Надежды Васильевны Строгоновой, учителя школы №161 блокадного Ленинграда. <br> <a
+                    href="https://vk.ru/wall535438957_619040">Источник</a>
+            </figcaption>
+        </figure>
+        </figure>
     </section>
     <div class="row g-5 pb-5">
         {% for items, title, path, action in [(stories, 'Последние истории', '/story', 'Все истории'), (news, 'Последние новости', '/news', 'Все новости')] %}
